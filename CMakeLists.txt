@@ -1,12 +1,13 @@
 cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
 
-project(ckit C)
-# project(ckit C CXX)
+project(merger C)
 
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE RelWithDebInfo)
 endif()
-set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}" ${CMAKE_MODULE_PATH})
+set(CMAKE_MODULE_PATH 
+    ${CMAKE_CURRENT_SOURCE_DIR}/cmake
+    ${CMAKE_MODULE_PATH})
 
 # Find Tarantool and Lua dependecies
 set(TARANTOOL_FIND_REQUIRED ON)
@@ -18,26 +19,26 @@ set(MsgPuck_FIND_REQUIRED ON)
 find_package(MsgPuck)
 include_directories(${MSGPUCK_INCLUDE_DIRS})
 
-# Find other dependecies
+# Find LuaJIT dependencies
+# set(MsgPuck_FIND_REQUIRED ON)
+# find_package(MsgPuck)
+include_directories(${LUA_INCDIR})
 
-# Set CFLAGS
-# set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
-set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -Wall -Wextra")
-# Set CXXFLAGS
-# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall -Wextra")
+
+set(CMAKE_C_FLAGS_DEBUG     ${CMAKE_C_FLAGS_DEBUG}   -Wall -Wextra)
+set(CMAKE_CXX_FLAGS_DEBUG   ${CMAKE_CXX_FLAGS_DEBUG} -Wall -Wextra)
 
 # Build module
-add_subdirectory(ckit)
+add_subdirectory(merger)
 
-enable_testing()
+#enable_testing()
 
 set (LUA_PATH "LUA_PATH=${PROJECT_SOURCE_DIR}/?.lua\\;${PROJECT_SOURCE_DIR}/?/init.lua\\;;")
 
-add_test(ckit ${CMAKE_SOURCE_DIR}/test/ckit.test.lua)
-set_tests_properties(ckit PROPERTIES ENVIRONMENT "${LUA_PATH}")
+# add_test(ckit ${CMAKE_SOURCE_DIR}/test/ckit.test.lua)
+# set_tests_properties(ckit PROPERTIES ENVIRONMENT "${LUA_PATH}")
 
 # Add `make check`
-add_custom_target(check
-    WORKING_DIRECTORY ${PROJECT_BUILD_DIR}
-    COMMAND ctest -V)
+# add_custom_target(check
+#     WORKING_DIRECTORY ${PROJECT_BUILD_DIR}
+#    COMMAND ctest -V)
