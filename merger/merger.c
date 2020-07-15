@@ -29,9 +29,12 @@
  * SUCH DAMAGE.
  */
 
-#include "box/lua/merger.h"
+#include "merger.h"
 
+#define _GNU_SOURCE
 #include <assert.h>
+#include <errno.h>
+#include <pthread.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
