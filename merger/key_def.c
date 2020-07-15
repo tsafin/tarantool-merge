@@ -29,14 +29,17 @@
  * SUCH DAMAGE.
  */
 
+#define _GNU_SOURCE
+#include <pthread.h>
+
 #include "box/coll_id_cache.h"
 #include "box/lua/key_def.h"
 #include "box/tuple.h"
 #include "diag.h"
 #include "fiber.h"
 #include "lua/utils.h"
-#include "misc.h"
-#include "tuple.h"
+#include "box/lua/misc.h"
+#include "box/lua/tuple.h"
 
 static uint32_t CTID_STRUCT_KEY_DEF_REF = 0;
 
