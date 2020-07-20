@@ -45,7 +45,7 @@ if(TARANTOOL_FOUND)
         CACHE PATH "Include directories for Tarantool")
 
     set (LUAJIT_BUNDLED_PREFIX  ${TARANTOOL_INCLUDE_DIR}/third_party/luajit/src)
-    set (LUAJIT_LIBRARIES       ${LUAJIT_BUNDLED_PREFIX}/libluajit.a)
+    # set (LUAJIT_LIBRARIES       ${LUAJIT_BUNDLED_PREFIX}/libluajit.a)
 
     set(TARANTOOL_INSTALL_LIBDIR 
             ${CMAKE_INSTALL_LIBDIR}/tarantool
