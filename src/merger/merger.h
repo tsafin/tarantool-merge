@@ -1,5 +1,5 @@
-#ifndef TARANTOOL_BOX_LUA_KEY_DEF_H_INCLUDED
-#define TARANTOOL_BOX_LUA_KEY_DEF_H_INCLUDED
+#ifndef TARANTOOL_BOX_LUA_MERGER_H_INCLUDED
+#define TARANTOOL_BOX_LUA_MERGER_H_INCLUDED
 /*
  * Copyright 2010-2019, Tarantool AUTHORS, please see AUTHORS file.
  *
@@ -36,34 +36,12 @@ extern "C" {
 #endif /* defined(__cplusplus) */
 
 struct lua_State;
-struct key_def;
 
-/**
- * Push a new table representing a key_def to a Lua stack.
- * Table is consists of key_def::parts tables that describe
- * each part correspondingly.
- * The collation and path fields are optional so resulting
- * object doesn't declare them where not necessary.
- */
-void
-luaT_push_key_def(struct lua_State *L, const struct key_def *key_def);
-
-/**
- * Check key_def pointer in LUA stack by specified index.
- * The value by idx is expected to be key_def's cdata.
- * Returns not NULL tuple pointer on success, NULL otherwise.
- */
-struct key_def *
-luaT_check_key_def(struct lua_State *L, int idx);
-
-/**
- * Register the module.
- */
 int
-luaopen_key_def(struct lua_State *L);
+luaopen_mergerx_merger(struct lua_State *L);
 
 #if defined(__cplusplus)
 } /* extern "C" */
 #endif /* defined(__cplusplus) */
 
-#endif /* TARANTOOL_BOX_LUA_KEY_DEF_H_INCLUDED */
+#endif /* TARANTOOL_BOX_LUA_MERGER_H_INCLUDED */

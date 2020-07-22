@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2019, Tarantool AUTHORS, please see AUTHORS file.
+ * Copyright 2010-2020, Tarantool AUTHORS, please see AUTHORS file.
  *
  * Redistribution and use in source and binary forms, with or
  * without modification, are permitted provided that the following
@@ -1255,7 +1255,7 @@ lbox_merge_source_select(struct lua_State *L)
  * Register the module.
  */
 LUA_API int
-luaopen_merger(struct lua_State *L)
+luaopen_mergerx_merger(struct lua_State *L)
 {
 	luaL_cdef(L, "struct merge_source;");
 	CTID_STRUCT_MERGE_SOURCE_REF = luaL_ctypeid(L, "struct merge_source&");

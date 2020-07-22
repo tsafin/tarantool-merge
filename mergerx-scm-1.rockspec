@@ -1,4 +1,4 @@
-package = 'tarantool-merge'
+package = 'mergerx'
 version = 'scm-1'
 
 -- url and branch of the package's repository at GitHub
@@ -32,7 +32,6 @@ build = {
     type = 'cmake';
     variables = {
         CMAKE_BUILD_TYPE="RelWithDebInfo";
-        TARANTOOL_SRC_DIR="$(TARANTOOL_SRC_DIR)";
         TARANTOOL_BUILD_INCDIR="$(TARANTOOL_BUILD_INCDIR)";
         TARANTOOL_INSTALL_LIBDIR="$(LIBDIR)";
         TARANTOOL_INSTALL_LUADIR="$(LUADIR)";
