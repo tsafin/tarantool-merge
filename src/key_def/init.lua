@@ -1,5 +1,5 @@
 local ffi = require('ffi')
-local key_def = require('key_def')
+local key_def = require('mergerx.key_def')
 local key_def_t = ffi.typeof('struct key_def')
 
 local methods = {

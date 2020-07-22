@@ -38,7 +38,7 @@ extern "C" {
 struct lua_State;
 
 int
-luaopen_merger(struct lua_State *L);
+luaopen_mergerx_merger(struct lua_State *L);
 
 #if defined(__cplusplus)
 } /* extern "C" */

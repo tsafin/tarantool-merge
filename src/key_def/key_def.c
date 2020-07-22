@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2019, Tarantool AUTHORS, please see AUTHORS file.
+ * Copyright 2010-2020, Tarantool AUTHORS, please see AUTHORS file.
  *
  * Redistribution and use in source and binary forms, with or
  * without modification, are permitted provided that the following
@@ -490,7 +490,7 @@ lbox_key_def_new(struct lua_State *L)
 }
 
 LUA_API int
-luaopen_key_def(struct lua_State *L)
+luaopen_mergerx_key_def(struct lua_State *L)
 {
 	luaL_cdef(L, "struct key_def;");
 	CTID_STRUCT_KEY_DEF_REF = luaL_ctypeid(L, "struct key_def&");

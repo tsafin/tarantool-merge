@@ -60,7 +60,7 @@ luaT_check_key_def(struct lua_State *L, int idx);
  * Register the module.
  */
 int
-luaopen_key_def(struct lua_State *L);
+luaopen_mergerx_key_def(struct lua_State *L);
 
 #if defined(__cplusplus)
 } /* extern "C" */
