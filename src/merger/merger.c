@@ -1255,7 +1255,7 @@ lbox_merge_source_select(struct lua_State *L)
  * Register the module.
  */
 LUA_API int
-luaopen_mergerx_merger(struct lua_State *L)
+lua_init_mergerx_merger(struct lua_State *L)
 {
 	luaL_cdef(L, "struct merge_source;");
 	CTID_STRUCT_MERGE_SOURCE_REF = luaL_ctypeid(L, "struct merge_source&");
@@ -1268,7 +1268,7 @@ luaopen_mergerx_merger(struct lua_State *L)
 		{"new", lbox_merger_new},
 		{NULL, NULL}
 	};
-	luaL_register_module(L, "merger", meta);
+	luaL_register_module(L, "mergerx.merger", meta);
 
 	/* Add internal.{select,ipairs}(). */
 	lua_newtable(L); /* merger.internal */
