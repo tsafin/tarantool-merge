@@ -1277,6 +1277,7 @@ lua_init_mergerx_merger(struct lua_State *L)
 	lua_pushcfunction(L, lbox_merge_source_ipairs);
 	lua_setfield(L, -2, "ipairs");
 	lua_setfield(L, -2, "internal");
+	lua_pop(L, 1);
 
 	return 1;
 }
