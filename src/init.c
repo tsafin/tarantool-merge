@@ -1,7 +1,5 @@
-#ifndef TARANTOOL_BOX_LUA_KEY_DEF_H_INCLUDED
-#define TARANTOOL_BOX_LUA_KEY_DEF_H_INCLUDED
 /*
- * Copyright 2010-2019, Tarantool AUTHORS, please see AUTHORS file.
+ * Copyright 2010-2020, Tarantool AUTHORS, please see AUTHORS file.
  *
  * Redistribution and use in source and binary forms, with or
  * without modification, are permitted provided that the following
@@ -16,11 +14,11 @@
  *    disclaimer in the documentation and/or other materials
  *    provided with the distribution.
  *
- * THIS SOFTWARE IS PROVIDED BY AUTHORS ``AS IS'' AND
+ * THIS SOFTWARE IS PROVIDED BY <COPYRIGHT HOLDER> ``AS IS'' AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
  * TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
  * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
- * AUTHORS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * <COPYRIGHT HOLDER> OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
  * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
  * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
  * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
@@ -31,39 +29,22 @@
  * SUCH DAMAGE.
  */
 
-#if defined(__cplusplus)
-extern "C" {
-#endif /* defined(__cplusplus) */
+#include <lua/utils.h>
 
-struct lua_State;
-struct key_def;
+#include "merger/merger.h"
+#include "key_def/key_def.h"
 
-/**
- * Push a new table representing a key_def to a Lua stack.
- * Table is consists of key_def::parts tables that describe
- * each part correspondingly.
- * The collation and path fields are optional so resulting
- * object doesn't declare them where not necessary.
- */
-void
-luaT_push_key_def(struct lua_State *L, const struct key_def *key_def);
+LUA_API int
+luaopen_mergerx(struct lua_State *L)
+{
+	/* Export C functions to Lua. */
+	static const struct luaL_Reg meta[] = {
+		{NULL, NULL}
+	};
+	luaL_register(L, "mergerx", meta);
 
-/**
- * Check key_def pointer in LUA stack by specified index.
- * The value by idx is expected to be key_def's cdata.
- * Returns not NULL tuple pointer on success, NULL otherwise.
- */
-struct key_def *
-luaT_check_key_def(struct lua_State *L, int idx);
+	lua_init_mergerx_merger(L);
+	lua_init_mergerx_key_def(L);
 
-/**
- * Register the module.
- */
-int
-lua_init_mergerx_key_def(struct lua_State *L);
-
-#if defined(__cplusplus)
-} /* extern "C" */
-#endif /* defined(__cplusplus) */
-
-#endif /* TARANTOOL_BOX_LUA_KEY_DEF_H_INCLUDED */
+	return 1;
+}

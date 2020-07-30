@@ -490,7 +490,7 @@ lbox_key_def_new(struct lua_State *L)
 }
 
 LUA_API int
-luaopen_mergerx_key_def(struct lua_State *L)
+lua_init_mergerx_key_def(struct lua_State *L)
 {
 	luaL_cdef(L, "struct key_def;");
 	CTID_STRUCT_KEY_DEF_REF = luaL_ctypeid(L, "struct key_def&");
@@ -505,6 +505,8 @@ luaopen_mergerx_key_def(struct lua_State *L)
 		{"totable", lbox_key_def_to_table},
 		{NULL, NULL}
 	};
-	luaL_register_module(L, "key_def", meta);
+	luaL_register_module(L, "mergerx.key_def", meta);
+	lua_pop(L, 1);
+
 	return 1;
 }

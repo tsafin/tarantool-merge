@@ -7,11 +7,10 @@ if (APPLE)
 endif(APPLE)
 
 # Add C library
-add_library(merger SHARED merger/merger.c key_def/key_def.c)
+add_library(${PROJECT_NAME} SHARED init.c merger/merger.c key_def/key_def.c)
 # target_link_libraries(merger ${LUAJIT_LIBRARIES} ${MSGPUCK_LIBRARIES})
-set_target_properties(merger PROPERTIES PREFIX "" OUTPUT_NAME "merger")
+set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "" OUTPUT_NAME ${PROJECT_NAME})
 
 # Install module
-install(FILES merger/init.lua DESTINATION ${TARANTOOL_INSTALL_LUADIR}/${PROJECT_NAME}/merger/)
-install(FILES key_def/init.lua DESTINATION ${TARANTOOL_INSTALL_LUADIR}/${PROJECT_NAME}/key_def)
-install(TARGETS merger LIBRARY DESTINATION ${TARANTOOL_INSTALL_LIBDIR}/${PROJECT_NAME}/)
+install(FILES mergerx.lua key_defx.lua DESTINATION ${TARANTOOL_INSTALL_LUADIR}/${PROJECT_NAME}/)
+install(TARGETS ${PROJECT_NAME} LIBRARY DESTINATION ${TARANTOOL_INSTALL_LIBDIR}/)
