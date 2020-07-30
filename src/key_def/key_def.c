@@ -506,6 +506,7 @@ lua_init_mergerx_key_def(struct lua_State *L)
 		{NULL, NULL}
 	};
 	luaL_register_module(L, "mergerx.key_def", meta);
+	lua_pop(L, 1);
 
 	return 1;
 }

@@ -46,5 +46,5 @@ luaopen_mergerx(struct lua_State *L)
 	lua_init_mergerx_merger(L);
 	lua_init_mergerx_key_def(L);
 
-	return 3;
+	return 1;
 }
