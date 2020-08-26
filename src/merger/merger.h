@@ -1,7 +1,7 @@
-#ifndef TARANTOOL_BOX_LUA_MERGER_H_INCLUDED
-#define TARANTOOL_BOX_LUA_MERGER_H_INCLUDED
+#ifndef MERGER_MERGER_H_INCLUDED
+#define MERGER_MERGER_H_INCLUDED
 /*
- * Copyright 2010-2019, Tarantool AUTHORS, please see AUTHORS file.
+ * Copyright 2010-2020, Tarantool AUTHORS, please see AUTHORS file.
  *
  * Redistribution and use in source and binary forms, with or
  * without modification, are permitted provided that the following
@@ -44,4 +44,4 @@ lua_init_mergerx_merger(struct lua_State *L);
 } /* extern "C" */
 #endif /* defined(__cplusplus) */
 
-#endif /* TARANTOOL_BOX_LUA_MERGER_H_INCLUDED */
+#endif /* MERGER_MERGER_H_INCLUDED */
