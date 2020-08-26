@@ -18,8 +18,8 @@ install_manifest.txt
 *.xlog*
 *~
 .gdb_history
-./build
-/build
+/build*
+/.vscode
 VERSION
 CTestTestfile.cmake
 Testing
