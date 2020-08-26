@@ -29,8 +29,6 @@
  * SUCH DAMAGE.
  */
 
-#include "merger.h"
-
 #define _GNU_SOURCE
 #include <assert.h>
 #include <errno.h>
@@ -43,6 +41,7 @@
 #include <lua.h>             /* lua_*() */
 #include <lauxlib.h>         /* luaL_*() */
 
+#if 0 
 #include "fiber.h"           /* fiber() */
 #include "diag.h"            /* diag_set() */
 
@@ -56,12 +55,27 @@
 #include "box/lua/key_def.h" /* luaT_check_key_def() */
 #include "box/lua/tuple.h"   /* luaT_tuple_new() */
 
-#include "small/ibuf.h"      /* struct ibuf */
 #include "msgpuck.h"         /* mp_*() */
 
 #include "box/merger.h"      /* merge_source_*, merger_*() */
+#else
+#include <module.h>
+#include <msgpuck.h>         /* mp_*() */
+#include <small/ibuf.h>      /* struct ibuf */
+
+#include "compat/diag.h"
+#include "compat/tuple.h"
+#include "compat/utils.h"
+// FIXME - migrate to local key_def implementation
+#include "compat/key_def.h"
+#include "../key_def/key_def.h" // FIXME
+
+#include "merger-source.h"   /* merge_source_*, merger_*() */
+#include "merger.h"
+#endif
 
 static uint32_t CTID_STRUCT_MERGE_SOURCE_REF = 0;
+
 
 /**
  * A type of a function to create a source from a Lua iterator on
@@ -134,19 +148,19 @@ encode_header(struct ibuf *output_buffer, uint32_t result_len)
  *
  * In case of an error return NULL and set a diag.
  */
-static struct tuple *
-luaT_gettuple(struct lua_State *L, int idx, struct tuple_format *format)
+static box_tuple_t *
+luaT_gettuple(struct lua_State *L, int idx, box_tuple_format_t *format)
 {
-	struct tuple *tuple = luaT_istuple(L, idx);
+	box_tuple_t *tuple = luaT_istuple(L, idx);
 	if (tuple == NULL) {
 		/* Create a tuple from a Lua table. */
 		if (format == NULL)
-			format = tuple_format_runtime;
+			format = box_tuple_format_default();
 		if ((tuple = luaT_tuple_new(L, idx, format)) == NULL)
 			return NULL;
 	} else {
 		/* Validate a tuple. */
-		if (format != NULL && tuple_validate(format, tuple) != 0)
+		if (format != NULL && box_tuple_validate(format, tuple) != 0)
 			return NULL;
 	}
 	return tuple;
@@ -177,6 +191,7 @@ luaT_gettuple(struct lua_State *L, int idx, struct tuple_format *format)
 static struct lua_State *
 luaT_temp_luastate(int *coro_ref, int *top)
 {
+	#if 0 // FIXME
 	if (fiber()->storage.lua.stack != NULL) {
 		/*
 		 * Reuse existing stack. In the releasing function
@@ -189,6 +204,7 @@ luaT_temp_luastate(int *coro_ref, int *top)
 		*top = lua_gettop(L);
 		return L;
 	}
+	#endif
 
 	/*
 	 * luaT_newthread() pops the new Lua state from
@@ -434,8 +450,8 @@ static void
 luaL_merge_source_buffer_destroy(struct merge_source *base);
 static int
 luaL_merge_source_buffer_next(struct merge_source *base,
-			      struct tuple_format *format,
-			      struct tuple **out);
+			      box_tuple_format_t *format,
+			      box_tuple_t **out);
 
 /* Non-virtual methods */
 
@@ -567,8 +583,8 @@ luaL_merge_source_buffer_destroy(struct merge_source *base)
  */
 static int
 luaL_merge_source_buffer_next(struct merge_source *base,
-			      struct tuple_format *format,
-			      struct tuple **out)
+			      box_tuple_format_t *format,
+			      box_tuple_t **out)
 {
 	struct merge_source_buffer *source = container_of(base,
 		struct merge_source_buffer, base);
@@ -600,12 +616,12 @@ luaL_merge_source_buffer_next(struct merge_source *base,
 	--source->remaining_tuple_count;
 	source->buf->rpos = (char *) tuple_end;
 	if (format == NULL)
-		format = tuple_format_runtime;
-	struct tuple *tuple = tuple_new(format, tuple_beg, tuple_end);
+		format = box_tuple_format_default();
+	box_tuple_t *tuple = box_tuple_new(format, tuple_beg, tuple_end);
 	if (tuple == NULL)
 		return -1;
 
-	tuple_ref(tuple);
+	box_tuple_ref(tuple);
 	*out = tuple;
 	return 0;
 }
@@ -647,8 +663,8 @@ static void
 luaL_merge_source_table_destroy(struct merge_source *base);
 static int
 luaL_merge_source_table_next(struct merge_source *base,
-			     struct tuple_format *format,
-			     struct tuple **out);
+			     box_tuple_format_t *format,
+			     box_tuple_t **out);
 
 /* Non-virtual methods */
 
@@ -752,8 +768,8 @@ luaL_merge_source_table_destroy(struct merge_source *base)
  */
 static int
 luaL_merge_source_table_next_impl(struct merge_source *base,
-				  struct tuple_format *format,
-				  struct tuple **out,
+				  box_tuple_format_t *format,
+				  box_tuple_t **out,
 				  struct lua_State *L)
 {
 	struct merge_source_table *source = container_of(base,
@@ -786,14 +802,14 @@ luaL_merge_source_table_next_impl(struct merge_source *base,
 		lua_gettable(L, -2);
 	}
 
-	struct tuple *tuple = luaT_gettuple(L, -1, format);
+	box_tuple_t *tuple = luaT_gettuple(L, -1, format);
 	if (tuple == NULL)
 		return -1;
 
 	++source->next_idx;
 	lua_pop(L, 2);
 
-	tuple_ref(tuple);
+	box_tuple_ref(tuple);
 	*out = tuple;
 	return 0;
 }
@@ -805,8 +821,8 @@ luaL_merge_source_table_next_impl(struct merge_source *base,
  */
 static int
 luaL_merge_source_table_next(struct merge_source *base,
-			     struct tuple_format *format,
-			     struct tuple **out)
+			     box_tuple_format_t *format,
+			     box_tuple_t **out)
 {
 	int coro_ref = LUA_REFNIL;
 	int top = -1;
@@ -849,8 +865,8 @@ static void
 luaL_merge_source_tuple_destroy(struct merge_source *base);
 static int
 luaL_merge_source_tuple_next(struct merge_source *base,
-			     struct tuple_format *format,
-			     struct tuple **out);
+			     box_tuple_format_t *format,
+			     box_tuple_t **out);
 
 /* Non-virtual methods */
 
@@ -945,8 +961,8 @@ luaL_merge_source_tuple_destroy(struct merge_source *base)
  */
 static int
 luaL_merge_source_tuple_next_impl(struct merge_source *base,
-				  struct tuple_format *format,
-				  struct tuple **out,
+				  box_tuple_format_t *format,
+				  box_tuple_t **out,
 				  struct lua_State *L)
 {
 	struct merge_source_tuple *source = container_of(base,
@@ -963,12 +979,12 @@ luaL_merge_source_tuple_next_impl(struct merge_source *base,
 		return 0;
 	}
 
-	struct tuple *tuple = luaT_gettuple(L, -1, format);
+	box_tuple_t *tuple = luaT_gettuple(L, -1, format);
 	if (tuple == NULL)
 		return -1;
 
 	lua_pop(L, 1);
-	tuple_ref(tuple);
+	box_tuple_ref(tuple);
 	*out = tuple;
 	return 0;
 }
@@ -980,8 +996,8 @@ luaL_merge_source_tuple_next_impl(struct merge_source *base,
  */
 static int
 luaL_merge_source_tuple_next(struct merge_source *base,
-			     struct tuple_format *format,
-			     struct tuple **out)
+			     box_tuple_format_t *format,
+			     box_tuple_t **out)
 {
 	int coro_ref = LUA_REFNIL;
 	int top = -1;
@@ -1028,7 +1044,7 @@ lbox_merge_source_gen(struct lua_State *L)
 		return luaL_error(L, "Bad params, use: lbox_merge_source_gen("
 				  "nil, merge_source)");
 
-	struct tuple *tuple;
+	box_tuple_t *tuple;
 	if (merge_source_next(source, NULL, &tuple) != 0)
 		return luaT_error(L);
 	if (tuple == NULL) {
@@ -1046,7 +1062,7 @@ lbox_merge_source_gen(struct lua_State *L)
 	 * luaT_pushtuple() references the tuple, so we
 	 * unreference it on merger's side.
 	 */
-	tuple_unref(tuple);
+	box_tuple_unref(tuple);
 
 	return 2;
 }
@@ -1113,8 +1129,9 @@ encode_result_buffer(struct lua_State *L, struct merge_source *source,
 	encode_header(output_buffer, UINT32_MAX);
 
 	/* Fetch, merge and copy tuples to the buffer. */
-	struct tuple *tuple;
+	box_tuple_t *tuple;
 	int rc = 0;
+	#if 0
 	while (result_len < limit && (rc =
 	       merge_source_next(source, NULL, &tuple)) == 0 &&
 	       tuple != NULL) {
@@ -1126,8 +1143,9 @@ encode_result_buffer(struct lua_State *L, struct merge_source *source,
 		++result_len;
 
 		/* The received tuple is not more needed. */
-		tuple_unref(tuple);
+		box_tuple_unref(tuple);
 	}
+	#endif
 
 	if (rc != 0)
 		return luaT_error(L);
@@ -1153,7 +1171,7 @@ create_result_table(struct lua_State *L, struct merge_source *source,
 	uint32_t cur = 1;
 
 	/* Fetch, merge and save tuples to the table. */
-	struct tuple *tuple;
+	box_tuple_t *tuple;
 	int rc = 0;
 	while (cur - 1 < limit && (rc =
 	       merge_source_next(source, NULL, &tuple)) == 0 &&
@@ -1166,7 +1184,7 @@ create_result_table(struct lua_State *L, struct merge_source *source,
 		 * luaT_pushtuple() references the tuple, so we
 		 * unreference it on merger's side.
 		 */
-		tuple_unref(tuple);
+		box_tuple_unref(tuple);
 	}
 
 	if (rc != 0)
