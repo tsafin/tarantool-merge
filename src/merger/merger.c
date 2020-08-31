@@ -192,6 +192,9 @@ static struct lua_State *
 luaT_temp_luastate(int *coro_ref, int *top)
 {
 	#if 0 // FIXME
+	// FIXME - could we avoid of doing this altogether 
+	// at the external code? Looks not very much
+	// required
 	if (fiber()->storage.lua.stack != NULL) {
 		/*
 		 * Reuse existing stack. In the releasing function
@@ -1131,7 +1134,6 @@ encode_result_buffer(struct lua_State *L, struct merge_source *source,
 	/* Fetch, merge and copy tuples to the buffer. */
 	box_tuple_t *tuple;
 	int rc = 0;
-	#if 0
 	while (result_len < limit && (rc =
 	       merge_source_next(source, NULL, &tuple)) == 0 &&
 	       tuple != NULL) {
@@ -1145,7 +1147,6 @@ encode_result_buffer(struct lua_State *L, struct merge_source *source,
 		/* The received tuple is not more needed. */
 		box_tuple_unref(tuple);
 	}
-	#endif
 
 	if (rc != 0)
 		return luaT_error(L);
