@@ -37,6 +37,8 @@
 extern "C" {
 #endif /* defined(__cplusplus) */
 
+// box/lua/tuple.h
+
 /**
  * Create a new tuple with specific format from a Lua table, a
  * tuple, or objects on the lua stack.
@@ -49,6 +51,97 @@ extern "C" {
 struct tuple *
 luaT_tuple_new(struct lua_State *L, int idx, box_tuple_format_t *format);
 
+
+// box/tuple.h
+// FIXME - this is dangerous zone
+/**
+ * An atom of Tarantool storage. Represents MsgPack Array.
+ * Tuple has the following structure:
+ *                           uint32       uint32     bsize
+ *                          +-------------------+-------------+
+ * tuple_begin, ..., raw =  | offN | ... | off1 | MessagePack |
+ * |                        +-------------------+-------------+
+ * |                                            ^
+ * +---------------------------------------data_offset
+ *
+ * Each 'off_i' is the offset to the i-th indexed field.
+ */
+struct PACKED tuple
+{
+	union {
+		/** Reference counter. */
+		uint16_t refs;
+		struct {
+			/** Index of big reference counter. */
+			uint16_t ref_index : 15;
+			/** Big reference flag. */
+			bool is_bigref : 1;
+		};
+	};
+	/** Format identifier. */
+	uint16_t format_id;
+	/**
+	 * Length of the MessagePack data in raw part of the
+	 * tuple.
+	 */
+	uint32_t bsize;
+	/**
+	 * Offset to the MessagePack from the begin of the tuple.
+	 */
+	uint16_t data_offset : 15;
+	/**
+	 * The tuple (if it's found in index for example) could be invisible
+	 * for current transactions. The flag means that the tuple must
+	 * be clarified by transaction engine.
+	 */
+	bool is_dirty : 1;
+	/**
+	 * Engine specific fields and offsets array concatenated
+	 * with MessagePack fields array.
+	 * char raw[0];
+	 */
+};
+
+/** Size of the tuple including size of struct tuple. */
+static inline size_t
+tuple_size(struct tuple *tuple)
+{
+	/* data_offset includes sizeof(struct tuple). */
+	return tuple->data_offset + tuple->bsize;
+}
+
+/**
+ * Get pointer to MessagePack data of the tuple.
+ * @param tuple tuple.
+ * @return MessagePack array.
+ */
+static inline const char *
+tuple_data(struct tuple *tuple)
+{
+	return (const char *) tuple + tuple->data_offset;
+}
+
+/**
+ * Wrapper around tuple_data() which returns NULL if @tuple == NULL.
+ */
+static inline const char *
+tuple_data_or_null(struct tuple *tuple)
+{
+	return tuple != NULL ? tuple_data(tuple) : NULL;
+}
+
+/**
+ * Get pointer to MessagePack data of the tuple.
+ * @param tuple tuple.
+ * @param[out] size Size in bytes of the MessagePack array.
+ * @return MessagePack array.
+ */
+static inline const char *
+tuple_data_range(struct tuple *tuple, uint32_t *p_size)
+{
+	*p_size = tuple->bsize;
+	return (const char *) tuple + tuple->data_offset;
+}
 
 /**
  * Check tuple data correspondence to space format.
