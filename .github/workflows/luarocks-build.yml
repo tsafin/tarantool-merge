@@ -1,0 +1,80 @@
+name: C LuaRocks module for Tarantool
+
+on: [push, pull_request]
+
+env:
+  BUILD_TYPE: RelWithDebInfo
+
+jobs:
+  build:
+    # See: https://docs.github.com/en/actions/configuring-and-managing-workflows/configuring-a-workflow#configuring-a-build-matrix
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+
+    steps:
+      - name: checkout merger
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+        
+      - name: checkout tarantool sources
+        uses: actions/checkout@v2
+        with:
+          repository: tarantool/tarantool
+          path:  tarantool
+          fetch-depth: 0
+          
+      - name: Create Tarantool build Environment
+        shell: bash
+        run: mkdir -p $GITHUB_WORKSPACE/tarantool/build
+
+      - name: Install tarantool build prerequisites for Mac
+        if: runner.os == 'macOS'
+        run: |
+          brew install readline icu4c openssl
+          brew install autoconf automake libtool
+          brew install msgpuck luajit
+
+      - name: Install tarantool build prerequisites for Linux
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get install -y luarocks libmsgpuck-dev libluajit-5.1-dev
+
+        # by some odd reason we can't use
+        #   working-directory: $GITHUB_WORKSPACE/tarantool/build
+        # syntax - directory is not yet existing before actions 
+        # run. So use workaround with cd
+      - name: Configure CMake for Tarantool sources
+        shell: bash
+        run: |
+          cd $GITHUB_WORKSPACE/tarantool/build
+          cmake $GITHUB_WORKSPACE/tarantool -DCMAKE_BUILD_TYPE=$BUILD_TYPE
+
+      - name: Build Tarantool module_api
+        shell: bash
+        run: |
+          cd $GITHUB_WORKSPACE/tarantool/build
+          cmake --build . --config $BUILD_TYPE --target module_api
+
+      
+      - name: Install MacOS prerequisites for luarocks
+        if: runner.os == 'macOS'
+        run: |
+          brew install luarocks
+
+      - name: luarocks make and pack
+        run: |
+          luarocks make --local TARANTOOL_BUILD_INCDIR=$GITHUB_WORKSPACE/tarantool/build
+          luarocks pack --local mergerx
+          
+      - name: publishing linux artifact
+        if: runner.os == 'Linux'
+        uses: actions/upload-artifact@v2
+        with:
+          name: mergerx-scm-1.linux-x86_64.rock
+          path: mergerx-scm-1.linux-x86_64.rock
+          
