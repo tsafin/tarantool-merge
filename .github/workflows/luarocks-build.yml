@@ -1,0 +1,65 @@
+name: C LuaRocks module for Tarantool
+
+on: [push, pull_request]
+
+env:
+  BUILD_TYPE: RelWithDebInfo
+
+jobs:
+  build:
+    # See: https://docs.github.com/en/actions/configuring-and-managing-workflows/configuring-a-workflow#configuring-a-build-matrix
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+
+    steps:
+      - name: checkout merger
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+        
+      - name: checkout tarantool sources
+        uses: actions/checkout@v2
+        with:
+          repository: tarantool/tarantool
+          path:  tarantool
+          fetch-depth: 0
+          
+      - name: Create Tarantool build Environment
+        shell: bash
+        run: mkdir -p ${{runner.workspace}}/build-tarantool
+
+      - name: Install tarantool build prerequisites for Mac
+        if: runner.os == 'macOS'
+        run: |
+          brew install readline icu4c openssl
+          brew install autoconf automake libtool
+
+      - name: Configure CMake for Tarantool sources
+        shell: bash
+        working-directory: ${{runner.workspace}}/build-tarantool
+        run: cmake $GITHUB_WORKSPACE/tarantool -DCMAKE_BUILD_TYPE=$BUILD_TYPE
+
+      - name: Build Tarantool module_api
+        working-directory: ${{runner.workspace}}/build-tarantool
+        shell: bash
+        run: cmake --build . --config $BUILD_TYPE --target module_api
+
+      - name: Install Linux prerequisites for luarocks
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get install -y luarocks luajit lua5.2
+      
+      - name: Install MacOS prerequisites for luarocks
+        if: runner.os == 'macOS'
+        run: |
+          brew install luarocks
+
+      - name: luarocks make and pack
+        run: |
+          luarocks make --local TARANTOOL_BUILD_INCDIR=${{runner.workspace}}/build-tarantool
+          luarocks pack --local mergerx
+          
