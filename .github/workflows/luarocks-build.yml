@@ -71,3 +71,10 @@ jobs:
           luarocks make --local TARANTOOL_BUILD_INCDIR=$GITHUB_WORKSPACE/tarantool/build
           luarocks pack --local mergerx
           
+      - name: publishing linux artifact
+        if: runner.os == 'Linux'
+        uses: actions/upload-artifact@v2
+        with:
+          name: mergerx-scm-1.linux-x86_64.rock
+          path: mergerx-scm-1.linux-x86_64.rock
+          
