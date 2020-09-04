@@ -38,6 +38,11 @@ jobs:
           brew install readline icu4c openssl
           brew install autoconf automake libtool
 
+      - name: Install tarantool build prerequisites for Linux
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get install -y luarocks libmsgpuck-dev libluajit-5.1-dev
+
         # by some odd reason we can't use
         #   working-directory: $GITHUB_WORKSPACE/tarantool/build
         # syntax - directory is not yet existing before actions 
@@ -54,10 +59,6 @@ jobs:
           cd $GITHUB_WORKSPACE/tarantool/build
           cmake --build . --config $BUILD_TYPE --target module_api
 
-      - name: Install Linux prerequisites for luarocks
-        if: runner.os == 'Linux'
-        run: |
-          sudo apt-get install -y luarocks luajit lua5.2
       
       - name: Install MacOS prerequisites for luarocks
         if: runner.os == 'macOS'
