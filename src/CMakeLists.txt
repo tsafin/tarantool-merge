@@ -1,11 +1,4 @@
 set(PROJECT_NAME mergerx)
-if (APPLE)
-    set(CMAKE_SHARED_LINKER_FLAGS
-        ${CMAKE_SHARED_LINKER_FLAGS}
-        -undefined,dynamic_lookup
-        -multiply_defined,suppress
-        -flat_namespace)
-endif(APPLE)
 
 # FIXME - get rid of those, after we would migrate to module_api in key_def
 if (${CMAKE_SYSTEM_PROCESSOR} MATCHES "86" OR ${CMAKE_SYSTEM_PROCESSOR} MATCHES "amd64")
@@ -24,6 +17,13 @@ add_library(${PROJECT_NAME} SHARED
             key_def/key_def.c)
 # target_link_libraries(merger ${LUAJIT_LIBRARIES} ${MSGPUCK_LIBRARIES})
 set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "" OUTPUT_NAME ${PROJECT_NAME})
+
+# The dynamic library will be loaded from tarantool executable
+# and will use symbols from it. So it is completely okay to have
+# unresolved symbols at build time.
+if (APPLE)
+    set_target_properties(${PROJECT_NAME} PROPERTIES LINK_FLAGS "-undefined dynamic_lookup")
+endif()
 
 # Install module
 install(FILES mergerx.lua key_defx.lua DESTINATION ${TARANTOOL_INSTALL_LUADIR}/${PROJECT_NAME}/)
