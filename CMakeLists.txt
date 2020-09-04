@@ -9,7 +9,7 @@ set(CMAKE_MODULE_PATH
     ${CMAKE_CURRENT_SOURCE_DIR}/cmake
     ${CMAKE_MODULE_PATH})
 
-# Find Tarantool and Lua dependecies
+# Find Tarantool dependecies
 set(TARANTOOL_FIND_REQUIRED ON)
 find_package(Tarantool)
 include_directories(${TARANTOOL_INCLUDE_DIRS})
@@ -19,9 +19,7 @@ set(MsgPuck_FIND_REQUIRED ON)
 find_package(MsgPuck)
 include_directories(${MSGPUCK_INCLUDE_DIRS})
 
-# Find LuaJIT dependencies
-# set(MsgPuck_FIND_REQUIRED ON)
-# find_package(MsgPuck)
+# add LuaJIT dependencies
 include_directories(${LUA_INCDIR})
 
 
@@ -31,14 +29,3 @@ set(CMAKE_CXX_FLAGS_DEBUG   ${CMAKE_CXX_FLAGS_DEBUG} -Wall -Wextra)
 # Build module
 add_subdirectory(src)
 
-#enable_testing()
-
-set (LUA_PATH "LUA_PATH=${PROJECT_SOURCE_DIR}/?.lua\\;${PROJECT_SOURCE_DIR}/?/init.lua\\;;")
-
-# add_test(ckit ${CMAKE_SOURCE_DIR}/test/ckit.test.lua)
-# set_tests_properties(ckit PROPERTIES ENVIRONMENT "${LUA_PATH}")
-
-# Add `make check`
-# add_custom_target(check
-#     WORKING_DIRECTORY ${PROJECT_BUILD_DIR}
-#    COMMAND ctest -V)
