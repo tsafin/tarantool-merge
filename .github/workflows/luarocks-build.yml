@@ -68,6 +68,6 @@ jobs:
 
       - name: luarocks make and pack
         run: |
-          luarocks make --local TARANTOOL_BUILD_INCDIR=$GITHUB_WORKSPACE/tarantool/build
-          luarocks pack --local mergerx
+          luarocks make --local --pack-binary-rock -TARANTOOL_BUILD_INCDIR=$GITHUB_WORKSPACE/tarantool/build
+          # luarocks pack --local mergerx
           
