@@ -284,7 +284,7 @@ lbox_key_def_extract_key(struct lua_State *L)
 	if ((tuple = luaT_key_def_check_tuple(L, key_def, 2)) == NULL)
 		return luaT_error(L);
 
-	struct region *region = &fiber()->gc;
+	struct region *region = &fiber_self()->gc;
 	size_t region_svp = region_used(region);
 	uint32_t key_size;
 	char *key = tuple_extract_key(tuple, key_def, MULTIKEY_NONE, &key_size);
@@ -356,7 +356,7 @@ lbox_key_def_compare_with_key(struct lua_State *L)
 	if (tuple == NULL)
 		return luaT_error(L);
 
-	struct region *region = &fiber()->gc;
+	struct region *region = &fiber_self()->gc;
 	size_t region_svp = region_used(region);
 	size_t key_len;
 	const char *key_end, *key = lbox_encode_tuple_on_gc(L, 3, &key_len);
@@ -442,7 +442,7 @@ lbox_key_def_new(struct lua_State *L)
 
 	uint32_t part_count = lua_objlen(L, 1);
 
-	struct region *region = &fiber()->gc;
+	struct region *region = &fiber_self()->gc;
 	size_t region_svp = region_used(region);
 	size_t size;
 	struct key_part_def *parts =
