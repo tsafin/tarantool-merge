@@ -1137,14 +1137,14 @@ encode_result_buffer(struct lua_State *L, struct merge_source *source,
 	while (result_len < limit && (rc =
 	       merge_source_next(source, NULL, &tuple)) == 0 &&
 	       tuple != NULL) {
-		uint32_t bsize = tuple->bsize;
+		uint32_t bsize = box_tuple_bsize(tuple);
 		ibuf_reserve(output_buffer, bsize);
-		memcpy(output_buffer->wpos, tuple_data(tuple), bsize);
+		box_tuple_to_buf(tuple, output_buffer->wpos, bsize);
 		output_buffer->wpos += bsize;
 		result_len_offset += bsize;
 		++result_len;
 
-		/* The received tuple is not more needed. */
+		/* The received tuple is not needed anymore */
 		box_tuple_unref(tuple);
 	}
 
