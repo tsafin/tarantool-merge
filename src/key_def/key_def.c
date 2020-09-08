@@ -492,8 +492,8 @@ lbox_key_def_new(struct lua_State *L)
 LUA_API int
 lua_init_mergerx_key_def(struct lua_State *L)
 {
-	luaL_cdef(L, "struct key_def;");
-	CTID_STRUCT_KEY_DEF_REF = luaL_ctypeid(L, "struct key_def&");
+	luaL_cdef(L, "struct key_def_key_def;");
+	CTID_STRUCT_KEY_DEF_REF = luaL_ctypeid(L, "struct key_def_key_def&");
 
 	/* Export C functions to Lua. */
 	static const struct luaL_Reg meta[] = {
