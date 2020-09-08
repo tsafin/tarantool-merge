@@ -1276,8 +1276,8 @@ lbox_merge_source_select(struct lua_State *L)
 LUA_API int
 lua_init_mergerx_merger(struct lua_State *L)
 {
-	luaL_cdef(L, "struct merge_source;");
-	CTID_STRUCT_MERGE_SOURCE_REF = luaL_ctypeid(L, "struct merge_source&");
+	luaL_cdef(L, "struct mergerx_merge_source;");
+	CTID_STRUCT_MERGE_SOURCE_REF = luaL_ctypeid(L, "struct mergerx_merge_source&");
 
 	/* Export C functions to Lua. */
 	static const struct luaL_Reg meta[] = {
