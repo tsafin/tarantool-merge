@@ -332,7 +332,7 @@ luaT_merger_new_parse_sources(struct lua_State *L, int idx,
 		source_count;
 	struct merge_source **sources = malloc(sources_size);
 	if (sources == NULL) {
-		diag_set(OutOfMemory, sources_size, "malloc", "sources");
+		diag_set_oom(sources_size, "malloc", "sources");
 		return NULL;
 	}
 
@@ -345,8 +345,7 @@ luaT_merger_new_parse_sources(struct lua_State *L, int idx,
 		struct merge_source *source = luaT_check_merge_source(L, -1);
 		if (source == NULL) {
 			free(sources);
-			diag_set(IllegalParams,
-				 "Unknown source type at index %d", i + 1);
+			diag_set_illegal("Unknown source type at index %d", i + 1);
 			return NULL;
 		}
 		sources[i] = source;
@@ -476,7 +475,7 @@ luaL_merge_source_buffer_new(struct lua_State *L)
 	struct merge_source_buffer *source = malloc(
 		sizeof(struct merge_source_buffer));
 	if (source == NULL) {
-		diag_set(OutOfMemory, sizeof(struct merge_source_buffer),
+		diag_set_oom(sizeof(struct merge_source_buffer),
 			 "malloc", "merge_source_buffer");
 		return NULL;
 	}
@@ -510,7 +509,7 @@ luaL_merge_source_buffer_fetch_impl(struct merge_source_buffer *source,
 
 	/* Handle incorrect results count. */
 	if (nresult != 2) {
-		diag_set(IllegalParams, "Expected <state>, <buffer>, got %d "
+		diag_set_illegal("Expected <state>, <buffer>, got %d "
 			 "return values", nresult);
 		return -1;
 	}
@@ -523,7 +522,7 @@ luaL_merge_source_buffer_fetch_impl(struct merge_source_buffer *source,
 	lua_pushvalue(L, -nresult + 1); /* Popped by luaL_ref(). */
 	source->buf = luaL_checkibuf(L, -1);
 	if (source->buf == NULL) {
-		diag_set(IllegalParams, "Expected <state>, <buffer>");
+		diag_set_illegal("Expected <state>, <buffer>");
 		return -1;
 	}
 	source->ref = luaL_ref(L, LUA_REGISTRYINDEX);
@@ -531,7 +530,7 @@ luaL_merge_source_buffer_fetch_impl(struct merge_source_buffer *source,
 
 	/* Update remaining_tuple_count and skip the header. */
 	if (decode_header(source->buf, &source->remaining_tuple_count) != 0) {
-		diag_set(IllegalParams, "Invalid merge source %p",
+		diag_set_illegal("Invalid merge source %p",
 			 &source->base);
 		return -1;
 	}
@@ -607,13 +606,13 @@ luaL_merge_source_buffer_next(struct merge_source *base,
 		}
 	}
 	if (ibuf_used(source->buf) == 0) {
-		diag_set(IllegalParams, "Unexpected msgpack buffer end");
+		diag_set_illegal("Unexpected msgpack buffer end");
 		return -1;
 	}
 	const char *tuple_beg = source->buf->rpos;
 	const char *tuple_end = tuple_beg;
 	if (mp_check(&tuple_end, source->buf->wpos) != 0) {
-		diag_set(IllegalParams, "Unexpected msgpack buffer end");
+		diag_set_illegal("Unexpected msgpack buffer end");
 		return -1;
 	}
 	--source->remaining_tuple_count;
@@ -687,7 +686,7 @@ luaL_merge_source_table_new(struct lua_State *L)
 	struct merge_source_table *source = malloc(
 		sizeof(struct merge_source_table));
 	if (source == NULL) {
-		diag_set(OutOfMemory, sizeof(struct merge_source_table),
+		diag_set_oom(sizeof(struct merge_source_table),
 			 "malloc", "merge_source_table");
 		return NULL;
 	}
@@ -723,7 +722,7 @@ luaL_merge_source_table_fetch(struct merge_source_table *source,
 
 	/* Handle incorrect results count. */
 	if (nresult != 2) {
-		diag_set(IllegalParams, "Expected <state>, <table>, got %d "
+		diag_set_illegal("Expected <state>, <table>, got %d "
 			 "return values", nresult);
 		return -1;
 	}
@@ -735,7 +734,7 @@ luaL_merge_source_table_fetch(struct merge_source_table *source,
 	}
 	lua_pushvalue(L, -nresult + 1); /* Popped by luaL_ref(). */
 	if (lua_istable(L, -1) == 0) {
-		diag_set(IllegalParams, "Expected <state>, <table>");
+		diag_set_illegal("Expected <state>, <table>");
 		return -1;
 	}
 	source->ref = luaL_ref(L, LUA_REGISTRYINDEX);
@@ -889,7 +888,7 @@ luaL_merge_source_tuple_new(struct lua_State *L)
 	struct merge_source_tuple *source = malloc(
 		sizeof(struct merge_source_tuple));
 	if (source == NULL) {
-		diag_set(OutOfMemory, sizeof(struct merge_source_tuple),
+		diag_set_oom(sizeof(struct merge_source_tuple),
 			 "malloc", "merge_source_tuple");
 		return NULL;
 	}
@@ -928,7 +927,7 @@ luaL_merge_source_tuple_fetch(struct merge_source_tuple *source,
 
 	/* Handle incorrect results count. */
 	if (nresult != 2) {
-		diag_set(IllegalParams, "Expected <state>, <tuple>, got %d "
+		diag_set_illegal("Expected <state>, <tuple>, got %d "
 			 "return values", nresult);
 		return -1;
 	}

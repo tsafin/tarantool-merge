@@ -57,6 +57,7 @@
 
 // FIXME - migrate to local key_def implementation
 #include "compat/key_def.h"
+#include "compat/diag.h"
 
 #include "merger-source.h"
 #endif
@@ -195,7 +196,7 @@ merger_add_heap_node(struct merger *merger, struct merger_heap_node *node)
 
 	/* Add a node to a heap. */
 	if (merger_heap_insert(&merger->heap, node) != 0) {
-		diag_set(OutOfMemory, 0, "malloc", "merger->heap");
+		diag_set_oom(0, "malloc", "merger->heap");
 		return -1;
 	}
 
@@ -227,8 +228,7 @@ merger_set_sources(struct merger *merger, struct merge_source **sources,
 		source_count;
 	struct merger_heap_node *nodes = malloc(nodes_size);
 	if (nodes == NULL) {
-		diag_set(OutOfMemory, nodes_size, "malloc",
-			 "merger heap nodes");
+		diag_set_oom(nodes_size, "malloc", "merger heap nodes");
 		return -1;
 	}
 
@@ -252,8 +252,7 @@ merger_new(struct key_def *key_def, struct merge_source **sources,
 
 	struct merger *merger = malloc(sizeof(struct merger));
 	if (merger == NULL) {
-		diag_set(OutOfMemory, sizeof(struct merger), "malloc",
-			 "merger");
+		diag_set_oom(sizeof(struct merger), "malloc", "merger");
 		return NULL;
 	}
 
