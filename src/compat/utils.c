@@ -47,7 +47,7 @@ luaL_iterator_new(lua_State *L, int idx)
 {
 	struct luaL_iterator *it = malloc(sizeof(struct luaL_iterator));
 	if (it == NULL) {
-		diag_set(OutOfMemory, sizeof(struct luaL_iterator),
+		diag_set_oom(sizeof(struct luaL_iterator),
 			 "malloc", "luaL_iterator");
 		return NULL;
 	}

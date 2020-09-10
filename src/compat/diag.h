@@ -50,6 +50,7 @@ extern "C" {
 
 
 
+#if 0
 #define diag_set(class, ...) do {					\
 	/* Preserve the original errno. */                              \
 	int save_errno = errno;                                         \
@@ -63,6 +64,14 @@ extern "C" {
 	say_debug("%s at %s:%i", #class, __FILE__, __LINE__);		\
 	errno = save_errno;						\
 } while (0)
+#endif
+
+#define diag_set_illegal(...) \
+	box_error_raise(ER_ILLEGAL_PARAMS, ##__VA_ARGS__)
+
+#define diag_set_oom(amount, allocator, object) \
+	box_error_raise(ER_MEMORY_ISSUE, "Failed to allocate %u bytes in %s for %s", \
+			amount, allocator, object)
 
 #if defined(__cplusplus)
 } /* extern "C" */
