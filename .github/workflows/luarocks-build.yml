@@ -25,6 +25,7 @@ jobs:
         uses: actions/checkout@v2
         with:
           repository: tarantool/tarantool
+          ref: tsafin/gh-5273-expand-module-api
           path:  tarantool
           fetch-depth: 0
           
