@@ -261,7 +261,7 @@ merger_new(struct key_def *key_def, struct merge_source **sources,
 	 * before a merge process ends (say, by LuaJIT GC if the
 	 * key_def comes from Lua).
 	 */
-	key_def = key_def_dup(key_def);
+	key_def = box_key_def_dup(key_def);
 	if (key_def == NULL) {
 		free(merger);
 		return NULL;
