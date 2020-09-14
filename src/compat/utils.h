@@ -67,18 +67,6 @@ luaL_register_module(struct lua_State *L, const char *modname,
 
 
 /**
- * @brief Creates a new Lua coroutine in a protected frame. If
- * <lua_newthread> call underneath succeeds, the created Lua state
- * is on the top of the guest stack and a pointer to this state is
- * returned. Otherwise LUA_ERRMEM error is handled and the result
- * is NULL.
- * @param L is a Lua state
- * @sa <lua_newthread>
- */
-struct lua_State *
-luaT_newthread(struct lua_State *L);
-
-/**
  * Check if a value on @a L stack by index @a idx is an ibuf
  * object. Both 'struct ibuf' and 'struct ibuf *' are accepted.
  * Returns NULL, if can't convert - not an ibuf object.
