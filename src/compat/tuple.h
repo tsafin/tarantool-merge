@@ -50,37 +50,6 @@ struct tuple *
 luaT_tuple_new(struct lua_State *L, int idx, box_tuple_format_t *format);
 
 
-/**
- * Check tuple data correspondence to space format.
- * Actually, checks everything that is checked by
- * tuple_field_map_create.
- *
- * @param format Format to which the tuple must match.
- * @param tuple  MessagePack array.
- *
- * @retval  0 The tuple is valid.
- * @retval -1 The tuple is invalid.
- */
-int
-tuple_validate_raw(struct tuple_format *format, const char *data);
-
-/**
- * Check tuple data correspondence to the space format.
- * @param format Format to which the tuple must match.
- * @param tuple  Tuple to validate.
- *
- * @retval  0 The tuple is valid.
- * @retval -1 The tuple is invalid.
- */
-static inline int
-box_tuple_validate(box_tuple_format_t *format, box_tuple_t *tuple)
-{
-	#if 0
-	return tuple_validate_raw(format, tuple_data(tuple));
-	#else
-	return 0;
-	#endif
-}
 #if defined(__cplusplus)
 } /* extern "C" */
 #endif /* defined(__cplusplus) */
