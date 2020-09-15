@@ -47,24 +47,11 @@
 
 #include <module.h>
 
-#include <lua.h>
-#include <lauxlib.h> /* luaL_error */
-
 #if defined(__cplusplus)
 extern "C" {
 #endif /* defined(__cplusplus) */
 
 extern struct lua_State *tarantool_L;
-
-void
-luaL_register_type(struct lua_State *L, const char *type_name,
-		   const struct luaL_Reg *methods);
-
-
-void
-luaL_register_module(struct lua_State *L, const char *modname,
-		     const struct luaL_Reg *methods);
-
 
 /**
  * Check if a value on @a L stack by index @a idx is an ibuf
