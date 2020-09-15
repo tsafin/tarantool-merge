@@ -47,6 +47,7 @@
 #include "box/key_def.h"      /* key_def_*(),
 				 tuple_compare() */
 #else
+#include <lauxlib.h>
 #include <module.h>
 #include <small/ibuf.h>       /* struct ibuf */
 
