@@ -64,10 +64,6 @@
 #include <small/ibuf.h>      /* struct ibuf */
 
 #include "compat/diag.h"
-#include "compat/tuple.h"
-#include "compat/utils.h"
-// FIXME - migrate to local key_def implementation
-#include "compat/key_def.h"
 #include "../key_def/key_def.h" // FIXME
 
 #include "merger-source.h"   /* merge_source_*, merger_*() */
