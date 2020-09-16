@@ -52,13 +52,8 @@
 #include <small/ibuf.h>       /* struct ibuf */
 
 #include "compat/diag.h"
-#include "compat/tuple.h"
 #define HEAP_FORWARD_DECLARATION
 #include "compat/heap.h"
-
-// FIXME - migrate to local key_def implementation
-#include "compat/key_def.h"
-#include "compat/diag.h"
 
 #include "merger-source.h"
 #endif
