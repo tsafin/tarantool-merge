@@ -51,8 +51,6 @@
 extern "C" {
 #endif /* defined(__cplusplus) */
 
-extern struct lua_State *tarantool_L;
-
 /**
  * Check if a value on @a L stack by index @a idx is an ibuf
  * object. Both 'struct ibuf' and 'struct ibuf *' are accepted.

@@ -166,85 +166,6 @@ luaT_gettuple(struct lua_State *L, int idx, box_tuple_format_t *format)
 	return tuple;
 }
 
-/**
- * Get a temporary Lua state.
- *
- * Use case: a function does not accept a Lua state as an argument
- * to allow using from C code, but uses a Lua value, which is
- * referenced in LUA_REGISTRYINDEX. A temporary Lua stack is needed
- * to get and process the value.
- *
- * The returned state shares LUA_REGISTRYINDEX with `tarantool_L`.
- *
- * This Lua state should be used only from one fiber: otherwise
- * one fiber may change the stack and another one will access a
- * wrong stack slot when it will be scheduled for execution after
- * yield.
- *
- * Return a Lua state on success and set @a coro_ref and @a top.
- * These values should be passed to
- * `luaT_release_temp_luastate()`, when the state is not needed
- * anymore.
- *
- * Return NULL and set a diag at failure.
- */
-static struct lua_State *
-luaT_temp_luastate(int *coro_ref, int *top)
-{
-	#if 0 // FIXME
-	// FIXME - could we avoid of doing this altogether 
-	// at the external code? Looks not very much
-	// required
-	if (fiber()->storage.lua.stack != NULL) {
-		/*
-		 * Reuse existing stack. In the releasing function
-		 * we should drop a stack top to its initial
-		 * value to don't exhaust available slots by
-		 * many requests in row.
-		 */
-		struct lua_State *L = fiber()->storage.lua.stack;
-		*coro_ref = LUA_REFNIL;
-		*top = lua_gettop(L);
-		return L;
-	}
-	#endif
-
-	/*
-	 * luaT_newthread() pops the new Lua state from
-	 * tarantool_L and it is right thing to do: if we'll push
-	 * something to it and yield, then another fiber will not
-	 * know that a stack top is changed and may operate on a
-	 * wrong slot.
-	 *
-	 * Second, many requests that push a value to tarantool_L
-	 * and yield may exhaust available slots on the stack.
-	 */
-	struct lua_State *L = luaT_newthread(tarantool_L);
-	if (L == NULL)
-		return NULL;
-	/*
-	 * The new state is not referenced from anywhere (reasons
-	 * are above), so we should keep a reference to it in the
-	 * registry while it is in use.
-	 */
-	*coro_ref = luaL_ref(tarantool_L, LUA_REGISTRYINDEX);
-	*top = -1;
-	return L;
-}
-
-/**
- * Release a temporary Lua state.
- *
- * It is the other half of `luaT_temp_luastate()`.
- */
-static void
-luaT_release_temp_luastate(struct lua_State *L, int coro_ref, int top)
-{
-	if (top >= 0)
-		lua_settop(L, top);
-	luaL_unref(tarantool_L, LUA_REGISTRYINDEX, coro_ref);
-}
-
 /* }}} */
 
 /* {{{ Create, destroy structures from Lua */
@@ -573,7 +494,7 @@ luaL_merge_source_buffer_destroy(struct merge_source *base)
 	assert(source->fetch_it != NULL);
 	luaL_iterator_delete(source->fetch_it);
 	if (source->ref > 0)
-		luaL_unref(tarantool_L, LUA_REGISTRYINDEX, source->ref);
+		luaL_unref(luaT_state(), LUA_REGISTRYINDEX, source->ref);
 
 	free(source);
 }
@@ -760,7 +681,7 @@ luaL_merge_source_table_destroy(struct merge_source *base)
 	assert(source->fetch_it != NULL);
 	luaL_iterator_delete(source->fetch_it);
 	if (source->ref > 0)
-		luaL_unref(tarantool_L, LUA_REGISTRYINDEX, source->ref);
+		luaL_unref(luaT_state(), LUA_REGISTRYINDEX, source->ref);
 
 	free(source);
 }
