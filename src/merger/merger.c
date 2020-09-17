@@ -70,6 +70,8 @@
 #include "merger.h"
 #endif
 
+static uint32_t CTID_STRUCT_KEY_DEF_REF = 0;
+static uint32_t CTID_STRUCT_KEY_DEF_KEY_DEF_PTR = 0;
 static uint32_t CTID_STRUCT_MERGE_SOURCE_REF = 0;
 
 
@@ -83,6 +85,22 @@ static uint32_t CTID_STRUCT_MERGE_SOURCE_REF = 0;
 typedef struct merge_source *(*luaL_merge_source_new_f)(struct lua_State *L);
 
 /* {{{ Helpers */
+
+static box_key_def_t *
+luaT_check_key_def(struct lua_State *L, int idx)
+{
+	if (! luaL_iscdata(L, idx))
+		return NULL;
+
+	uint32_t cdata_type;
+	box_key_def_t **key_def_ptr = luaL_checkcdata(L, idx, &cdata_type);
+	if (key_def_ptr == NULL)
+		return NULL;
+	if (cdata_type != CTID_STRUCT_KEY_DEF_REF &&
+	    cdata_type != CTID_STRUCT_KEY_DEF_KEY_DEF_PTR)
+		return NULL;
+	return *key_def_ptr;
+}
 
 /**
  * Extract a merge source from the Lua stack.
@@ -1192,6 +1210,16 @@ lbox_merge_source_select(struct lua_State *L)
 LUA_API int
 lua_init_mergerx_merger(struct lua_State *L)
 {
+	/* Built-in key_def module. */
+	luaL_cdef(L, "struct key_def &;");
+	static uint32_t CTID_STRUCT_KEY_DEF_REF =
+		luaL_ctypeid(L, "struct key_def &");
+
+	/* External key_def module. */
+	luaL_cdef(L, "struct key_def_key_def *;");
+	static uint32_t CTID_STRUCT_KEY_DEF_KEY_DEF_PTR =
+		luaL_ctypeid(L, "struct key_def_key_def *");
+
 	luaL_cdef(L, "struct mergerx_merge_source;");
 	CTID_STRUCT_MERGE_SOURCE_REF = luaL_ctypeid(L, "struct mergerx_merge_source&");
 
