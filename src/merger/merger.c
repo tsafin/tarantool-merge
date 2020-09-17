@@ -64,7 +64,6 @@
 #include <small/ibuf.h>      /* struct ibuf */
 
 #include "compat/diag.h"
-#include "../key_def/key_def.h" // FIXME
 
 #include "merger-source.h"   /* merge_source_*, merger_*() */
 #include "merger.h"
@@ -1212,13 +1211,11 @@ lua_init_mergerx_merger(struct lua_State *L)
 {
 	/* Built-in key_def module. */
 	luaL_cdef(L, "struct key_def &;");
-	static uint32_t CTID_STRUCT_KEY_DEF_REF =
-		luaL_ctypeid(L, "struct key_def &");
+	CTID_STRUCT_KEY_DEF_REF = luaL_ctypeid(L, "struct key_def &");
 
 	/* External key_def module. */
 	luaL_cdef(L, "struct key_def_key_def *;");
-	static uint32_t CTID_STRUCT_KEY_DEF_KEY_DEF_PTR =
-		luaL_ctypeid(L, "struct key_def_key_def *");
+	CTID_STRUCT_KEY_DEF_KEY_DEF_PTR = luaL_ctypeid(L, "struct key_def_key_def *");
 
 	luaL_cdef(L, "struct mergerx_merge_source;");
 	CTID_STRUCT_MERGE_SOURCE_REF = luaL_ctypeid(L, "struct mergerx_merge_source&");
