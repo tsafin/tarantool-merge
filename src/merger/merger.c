@@ -41,24 +41,6 @@
 #include <lua.h>             /* lua_*() */
 #include <lauxlib.h>         /* luaL_*() */
 
-#if 0 
-#include "fiber.h"           /* fiber() */
-#include "diag.h"            /* diag_set() */
-
-#include "box/tuple.h"       /* tuple_format_runtime,
-				tuple_*(), ... */
-
-#include "lua/error.h"       /* luaT_error() */
-#include "lua/utils.h"       /* luaL_pushcdata(),
-				luaL_iterator_*() */
-
-#include "box/lua/key_def.h" /* luaT_check_key_def() */
-#include "box/lua/tuple.h"   /* luaT_tuple_new() */
-
-#include "msgpuck.h"         /* mp_*() */
-
-#include "box/merger.h"      /* merge_source_*, merger_*() */
-#else
 #include <module.h>
 #include <msgpuck.h>         /* mp_*() */
 #include <small/ibuf.h>      /* struct ibuf */
@@ -67,7 +49,6 @@
 
 #include "merger-source.h"   /* merge_source_*, merger_*() */
 #include "merger.h"
-#endif
 
 static uint32_t CTID_STRUCT_KEY_DEF_REF = 0;
 static uint32_t CTID_STRUCT_KEY_DEF_KEY_DEF_PTR = 0;

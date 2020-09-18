@@ -48,24 +48,6 @@
 extern "C" {
 #endif /* defined(__cplusplus) */
 
-
-
-#if 0
-#define diag_set(class, ...) do {					\
-	/* Preserve the original errno. */                              \
-	int save_errno = errno;                                         \
-	say_debug("%s at %s:%i", #class, __FILE__, __LINE__);		\
-	/* Restore the errno which might have been reset.  */           \
-	errno = save_errno;                                             \
-} while (0)
-
-#define diag_add(class, ...) do {					\
-	int save_errno = errno;						\
-	say_debug("%s at %s:%i", #class, __FILE__, __LINE__);		\
-	errno = save_errno;						\
-} while (0)
-#endif
-
 #define diag_set_illegal(...) \
 	box_error_raise(ER_ILLEGAL_PARAMS, ##__VA_ARGS__)
 

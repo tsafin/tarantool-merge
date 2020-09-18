@@ -35,18 +35,6 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#if 0 
-#define HEAP_FORWARD_DECLARATION
-#include "salad/heap.h"
-
-#include "diag.h"             /* diag_set() */
-#include "box/tuple.h"        /* tuple_ref(), tuple_unref(),
-				 tuple_validate() */
-#include "box/tuple_format.h" /* box_tuple_format_new(),
-				 tuple_format_*() */
-#include "box/key_def.h"      /* key_def_*(),
-				 tuple_compare() */
-#else
 #include <lauxlib.h>
 #include <module.h>
 #include <small/ibuf.h>       /* struct ibuf */
@@ -56,7 +44,6 @@
 #include "compat/heap.h"
 
 #include "merger-source.h"
-#endif
 
 /* {{{ Merger */
 
