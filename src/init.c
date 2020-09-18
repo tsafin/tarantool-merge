@@ -29,10 +29,11 @@
  * SUCH DAMAGE.
  */
 
-#include <lua/utils.h>
+#include <lua.h>
+#include <lauxlib.h>
+#include <module.h>
 
 #include "merger/merger.h"
-#include "key_def/key_def.h"
 
 LUA_API int
 luaopen_mergerx(struct lua_State *L)
@@ -44,7 +45,6 @@ luaopen_mergerx(struct lua_State *L)
 	luaL_register(L, "mergerx", meta);
 
 	lua_init_mergerx_merger(L);
-	lua_init_mergerx_key_def(L);
 
 	return 1;
 }
