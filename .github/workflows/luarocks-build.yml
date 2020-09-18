@@ -1,4 +1,4 @@
-name: C LuaRocks module for Tarantool
+name: Build merger module
 
 on: [push, pull_request]
 
@@ -20,7 +20,8 @@ jobs:
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
-        
+          submodules: recursive
+
       - name: checkout tarantool sources
         uses: actions/checkout@v2
         with:
@@ -28,10 +29,13 @@ jobs:
           ref: tsafin/gh-5273-expand-module-api
           path:  tarantool
           fetch-depth: 0
-          
+          submodules: recursive
+
       - name: Create Tarantool build Environment
         shell: bash
-        run: mkdir -p $GITHUB_WORKSPACE/tarantool/build
+        run: |
+          mkdir -p $GITHUB_WORKSPACE/tarantool/build
+          mkdir -p $GITHUB_WORKSPACE/share
 
       - name: Install tarantool build prerequisites for Mac
         if: runner.os == 'macOS'
@@ -53,18 +57,18 @@ jobs:
         shell: bash
         run: |
           cd $GITHUB_WORKSPACE/tarantool/build
-          cmake $GITHUB_WORKSPACE/tarantool -DCMAKE_BUILD_TYPE=$BUILD_TYPE
+          cmake $GITHUB_WORKSPACE/tarantool -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DENABLE_DIST=ON -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/share
 
       - name: Build Tarantool module_api
         shell: bash
         run: |
           cd $GITHUB_WORKSPACE/tarantool/build
-          cmake --build . --config $BUILD_TYPE --target module_api
+          cmake --build . --config $BUILD_TYPE --target install -- -j
 
 
       - name: luarocks make and pack
         run: |
-          luarocks make --local TARANTOOL_BUILD_INCDIR=$GITHUB_WORKSPACE/tarantool/build
+          luarocks make --local TARANTOOL_BUILD_DIR=$GITHUB_WORKSPACE/share
           luarocks pack --local mergerx
 
       - name: publishing linux artifact
