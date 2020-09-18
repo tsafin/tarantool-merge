@@ -8,14 +8,14 @@ macro(extract_definition name output input)
         ${output} "${_t}")
 endmacro()
 
-find_path(TARANTOOL_INCLUDE_DIR src/module.h tarantool/module.h
+find_path(TARANTOOL_INCLUDE_DIR tarantool/module.h
   HINTS ${TARANTOOL_BUILD_INCDIR} TARANTOOL_INCLUDE_DIRS ENV
   PATH_SUFFIXES include
 )
 
 if(TARANTOOL_INCLUDE_DIR)
     set(_config "-")
-    file(READ "${TARANTOOL_INCLUDE_DIR}/src/module.h" _config0)
+    file(READ "${TARANTOOL_INCLUDE_DIR}/tarantool/module.h" _config0)
     string(REPLACE "\\" "\\\\" _config ${_config0})
     unset(_config0)
     extract_definition(PACKAGE_VERSION TARANTOOL_VERSION ${_config})
@@ -30,18 +30,9 @@ find_package_handle_standard_args(TARANTOOL
 if(TARANTOOL_FOUND)
     set(TARANTOOL_INCLUDE_DIRS 
             ${CMAKE_SOURCE_DIR}/src/
+            ${CMAKE_SOURCE_DIR}/src/small/
             ${TARANTOOL_INCLUDE_DIR}
-            ${TARANTOOL_INCLUDE_DIR}/src/
-            ${TARANTOOL_INCLUDE_DIR}/../
-            ${TARANTOOL_INCLUDE_DIR}/../src/
-            ${TARANTOOL_INCLUDE_DIR}/../src/box/
-            ${TARANTOOL_INCLUDE_DIR}/../src/lib/core/
-            ${TARANTOOL_INCLUDE_DIR}/../src/lib/
-            ${TARANTOOL_INCLUDE_DIR}/../src/lib/small/
-            ${TARANTOOL_INCLUDE_DIR}/../src/lib/small/third_party/
-            ${TARANTOOL_INCLUDE_DIR}/../src/lib/msgpuck/
-            ${TARANTOOL_INCLUDE_DIR}/../third_party/
-            ${TARANTOOL_INCLUDE_DIR}/../third_party/luajit/src
+            ${TARANTOOL_INCLUDE_DIR}/tarantool/
 
         CACHE PATH "Include directories for Tarantool")
 
