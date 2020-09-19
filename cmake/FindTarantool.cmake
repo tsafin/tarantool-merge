@@ -9,7 +9,7 @@ macro(extract_definition name output input)
 endmacro()
 
 find_path(TARANTOOL_INCLUDE_DIR tarantool/module.h
-  HINTS ${TARANTOOL_BUILD_INCDIR} TARANTOOL_INCLUDE_DIRS ENV
+  HINTS ${TARANTOOL_DIR} ENV TARANTOOL_DIR
   PATH_SUFFIXES include
 )
 
@@ -29,21 +29,18 @@ find_package_handle_standard_args(TARANTOOL
     REQUIRED_VARS TARANTOOL_INCLUDE_DIR VERSION_VAR TARANTOOL_VERSION)
 if(TARANTOOL_FOUND)
     set(TARANTOOL_INCLUDE_DIRS 
-            ${CMAKE_SOURCE_DIR}/src/
-            ${CMAKE_SOURCE_DIR}/src/small/
-            ${TARANTOOL_INCLUDE_DIR}
-            ${TARANTOOL_INCLUDE_DIR}/tarantool/
+        ${CMAKE_SOURCE_DIR}/src/
+        ${CMAKE_SOURCE_DIR}/src/small/
+        ${TARANTOOL_INCLUDE_DIR}
+        ${TARANTOOL_INCLUDE_DIR}/tarantool/
 
         CACHE PATH "Include directories for Tarantool")
 
-    set (LUAJIT_BUNDLED_PREFIX  ${TARANTOOL_INCLUDE_DIR}/third_party/luajit/src)
-    # set (LUAJIT_LIBRARIES       ${LUAJIT_BUNDLED_PREFIX}/libluajit.a)
-
     set(TARANTOOL_INSTALL_LIBDIR 
-            ${CMAKE_INSTALL_LIBDIR}/tarantool
+        ${CMAKE_INSTALL_LIBDIR}/tarantool
         CACHE PATH "Directory for storing Lua modules written in Lua")
     set(TARANTOOL_INSTALL_LUADIR 
-            ${CMAKE_INSTALL_DATADIR}/tarantool
+        ${CMAKE_INSTALL_DATADIR}/tarantool
         CACHE PATH "Directory for storing Lua modules written in C")
 
     if (NOT TARANTOOL_FIND_QUIETLY AND NOT FIND_TARANTOOL_DETAILS)
@@ -52,6 +49,7 @@ if(TARANTOOL_FOUND)
         message(STATUS "Tarantool LIBDIR is ${TARANTOOL_INSTALL_LIBDIR}")
     endif ()
 endif()
+
 mark_as_advanced(
     TARANTOOL_INCLUDE_DIRS
     TARANTOOL_INSTALL_LIBDIR

@@ -24,7 +24,7 @@ dependencies = {
 }
 
 external_dependencies = {
-    TARANTOOL_BUILD = {
+    TARANTOOL = {
         header = 'tarantool/module.h';
     };
 }
@@ -33,7 +33,7 @@ build = {
     type = 'cmake';
     variables = {
         CMAKE_BUILD_TYPE="RelWithDebInfo";
-        TARANTOOL_BUILD_INCDIR="$(TARANTOOL_BUILD_INCDIR)";
+        TARANTOOL_DIR="$(TARANTOOL_DIR)";
         TARANTOOL_INSTALL_LIBDIR="$(LIBDIR)";
         TARANTOOL_INSTALL_LUADIR="$(LUADIR)";
     };

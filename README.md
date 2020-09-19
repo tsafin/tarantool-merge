@@ -20,10 +20,10 @@ Sources of Tarantool 1.10+ or 2.x+ available with `build` directory populated.
 * Build and install rock locally
 
     ```bash
-    tarantoolctl rocks make TARANTOOL_BUILD_DIR=$HOME/share/
+    tarantoolctl rocks make TARANTOOL_DIR=$HOME/share/
     ```
     
-   Where `TARANTOOL_BUILD_DIR` is the installation directory where module_api was installed (by default it would be `/usr/share` 
+   Where `TARANTOOL_DIR` is the installation directory where module_api was installed (by default it would be `/usr/share` 
    for `tarantool` package).
 
 
