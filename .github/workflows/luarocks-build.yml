@@ -68,7 +68,7 @@ jobs:
 
       - name: luarocks make and pack
         run: |
-          luarocks make --local TARANTOOL_BUILD_DIR=$GITHUB_WORKSPACE/share
+          luarocks make --local TARANTOOL_DIR=$GITHUB_WORKSPACE/share
           luarocks pack --local mergerx
 
       - name: publishing linux artifact
