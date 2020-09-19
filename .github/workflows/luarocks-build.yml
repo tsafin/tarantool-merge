@@ -59,17 +59,18 @@ jobs:
           cd $GITHUB_WORKSPACE/tarantool/build
           cmake $GITHUB_WORKSPACE/tarantool -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DENABLE_DIST=ON -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/share
 
-      - name: Build Tarantool module_api
+      - name: Build and install Tarantool
         shell: bash
         run: |
           cd $GITHUB_WORKSPACE/tarantool/build
           cmake --build . --config $BUILD_TYPE --target install -- -j
+          echo "::set-env name=PATH::$GITHUB_WORKSPACE/share/bin:$PATH"
 
 
       - name: luarocks make and pack
         run: |
-          luarocks make --local TARANTOOL_DIR=$GITHUB_WORKSPACE/share
-          luarocks pack --local mergerx
+          tarantoolctl rocks make --local --server=https://tmonlibs.github.io/rocks TARANTOOL_DIR=$GITHUB_WORKSPACE/share
+          tarantoolctl rocks pack --local mergerx
 
       - name: publishing linux artifact
         if: runner.os == 'Linux'
