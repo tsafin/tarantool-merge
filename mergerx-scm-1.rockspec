@@ -19,7 +19,8 @@ description = {
 }
 
 dependencies = {
-    'lua >= 5.1';
+    'lua >= 5.1',
+    'key_def'
 }
 
 external_dependencies = {
