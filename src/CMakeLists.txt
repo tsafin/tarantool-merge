@@ -12,7 +12,9 @@ endif()
 # Add C library
 add_library(${PROJECT_NAME} SHARED
             init.c
-            merger/merger.c merger/merger-source.c)
+            compat/utils.c
+            merger/merger.c merger/merger-source.c
+)
 # target_link_libraries(merger ${LUAJIT_LIBRARIES} ${MSGPUCK_LIBRARIES})
 set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "" OUTPUT_NAME ${PROJECT_NAME})
 
