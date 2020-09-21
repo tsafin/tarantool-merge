@@ -46,6 +46,7 @@
 #include <small/ibuf.h>      /* struct ibuf */
 
 #include "compat/diag.h"
+#include "compat/utils.h"
 
 #include "merger-source.h"   /* merge_source_*, merger_*() */
 #include "merger.h"
