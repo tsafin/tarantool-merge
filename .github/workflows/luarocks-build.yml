@@ -1,4 +1,4 @@
-name: Build merger module
+name: Build mergerx module
 
 on: [push, pull_request]
 
@@ -69,8 +69,8 @@ jobs:
 
       - name: luarocks make and pack
         run: |
-          tarantoolctl rocks make --local --server=https://tmonlibs.github.io/rocks TARANTOOL_DIR=$GITHUB_WORKSPACE/share
-          tarantoolctl rocks pack --local mergerx
+          tarantoolctl rocks make --server=https://tmonlibs.github.io/rocks TARANTOOL_DIR=$GITHUB_WORKSPACE/share
+          tarantoolctl rocks pack mergerx
 
       - name: publishing linux artifact
         if: runner.os == 'Linux'
