@@ -1,4 +1,4 @@
-name: Build merger module
+name: Build mergerx module
 
 on: [push, pull_request]
 
@@ -11,9 +11,9 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
-      max-parallel: 2
       matrix:
         os: [ubuntu-latest, macos-latest]
+        branch: [tsafin/gh-5273-expand-module-api, tsafin/gh-5273-expand-module-api-1.10]
 
     steps:
       - name: checkout merger
@@ -26,7 +26,7 @@ jobs:
         uses: actions/checkout@v2
         with:
           repository: tarantool/tarantool
-          ref: tsafin/gh-5273-expand-module-api
+          ref: ${{ matrix.branch }}
           path:  tarantool
           fetch-depth: 0
           submodules: recursive
@@ -69,8 +69,8 @@ jobs:
 
       - name: luarocks make and pack
         run: |
-          tarantoolctl rocks make --local --server=https://tmonlibs.github.io/rocks TARANTOOL_DIR=$GITHUB_WORKSPACE/share
-          tarantoolctl rocks pack --local mergerx
+          tarantoolctl rocks make --server=https://tmonlibs.github.io/rocks TARANTOOL_DIR=$GITHUB_WORKSPACE/share
+          tarantoolctl rocks pack mergerx
 
       - name: publishing linux artifact
         if: runner.os == 'Linux'
