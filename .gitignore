@@ -1,8 +1,6 @@
 CMakeFiles/
 obj-*/
 CMakeCache.txt
-Makefile
-cmake_*.cmake
 install_manifest.txt
 *.a
 *.cbp
