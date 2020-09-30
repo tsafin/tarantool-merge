@@ -85,3 +85,9 @@ jobs:
         with:
           name: mergerx-scm-1.macosx-x86_64.rock
           path: mergerx-scm-1.macosx-x86_64.rock
+
+      - name: check examples
+        run: |
+          TARANTOOL=$GITHUB_WORKSPACE/tarantool/build/src/tarantool make -C examples/chunked_example test
+          tarantoolctl rocks install vshard
+          TARANTOOL=$GITHUB_WORKSPACE/tarantool/build/src/tarantool make -C examples/chunked_example_fast test
