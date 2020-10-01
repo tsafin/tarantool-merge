@@ -11,14 +11,14 @@ start: clean
 
 .ONESHELL:
 stop:
-	if [ -f storage_1.pid ]; then
+	if test -f storage_1.pid ; then
 		PID=$$(cat storage_1.pid)
 		kill $$PID
 	fi
 	while kill -0 $$PID 2>/dev/null; do
 		sleep 0.1
 	done
-	if [ -f storage_2.pid ]; then
+	if test -f storage_2.pid ; then
 		PID=$$(cat storage_2.pid)
 		kill $$PID
 	fi
@@ -28,8 +28,10 @@ stop:
 
 test:
 	$(MAKE) start
-	$(TARANTOOL) ./frontend.lua
+	$(TARANTOOL) ./frontend.lua  && err = $$?
 	$(MAKE) stop
+	exit $$err
+
 
 .ONESHELL:
 clean:
