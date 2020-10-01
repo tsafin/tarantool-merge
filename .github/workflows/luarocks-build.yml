@@ -86,6 +86,13 @@ jobs:
           name: mergerx-scm-1.macosx-x86_64.rock
           path: mergerx-scm-1.macosx-x86_64.rock
 
+      - name: Install modern Gnu Make on MacOSX
+        if: runner.os == 'macOS'
+        shell: bash
+        run: |
+          brew install make
+          echo "::set-env name=PATH::$(brew --prefix)/opt/make/libexec/gnubin:$PATH"
+
       - name: check examples
         run: |
           TARANTOOL=$GITHUB_WORKSPACE/tarantool/build/src/tarantool make -C examples/chunked_example test
