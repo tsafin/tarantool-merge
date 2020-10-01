@@ -28,8 +28,10 @@ stop:
 
 test:
 	$(MAKE) start
-	$(TARANTOOL) ./frontend.lua
+	$(TARANTOOL) ./frontend.lua  && err = $$?
 	$(MAKE) stop
+	exit $$err
+
 
 .ONESHELL:
 clean:
