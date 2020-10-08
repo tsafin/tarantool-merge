@@ -23,3 +23,6 @@ VERSION
 CTestTestfile.cmake
 Testing
 CTestTestfile.cmake
+storage_*.log
+storage_*.pid
+*.rock
