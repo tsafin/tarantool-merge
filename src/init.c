@@ -36,14 +36,8 @@
 #include "merger/merger.h"
 
 LUA_API int
-luaopen_mergerx(struct lua_State *L)
+luaopen_mergerx_merger(struct lua_State *L)
 {
-	/* Export C functions to Lua. */
-	static const struct luaL_Reg meta[] = {
-		{NULL, NULL}
-	};
-	luaL_register(L, "mergerx", meta);
-
 	lua_init_mergerx_merger(L);
 
 	return 1;
