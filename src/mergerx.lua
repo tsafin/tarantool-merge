@@ -1,7 +1,6 @@
 local ffi = require('ffi')
 local fun = require('fun')
-local mergerx = require('mergerx')
-local merger = mergerx.merger
+local merger = require('mergerx.merger')
 
 local ibuf_t = ffi.typeof('struct ibuf')
 local merge_source_t = ffi.typeof('struct mergerx_merge_source')

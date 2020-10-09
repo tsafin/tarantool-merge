@@ -1210,7 +1210,7 @@ lua_init_mergerx_merger(struct lua_State *L)
 		{"new", lbox_merger_new},
 		{NULL, NULL}
 	};
-	luaL_register_module(L, "mergerx.merger", meta);
+	luaL_register(L, "mergerx.merger", meta);
 
 	/* Add internal.{select,ipairs}(). */
 	lua_newtable(L); /* merger.internal */
@@ -1219,7 +1219,6 @@ lua_init_mergerx_merger(struct lua_State *L)
 	lua_pushcfunction(L, lbox_merge_source_ipairs);
 	lua_setfield(L, -2, "ipairs");
 	lua_setfield(L, -2, "internal");
-	lua_pop(L, 1);
 
 	return 1;
 }
