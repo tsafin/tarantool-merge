@@ -42,6 +42,13 @@
 extern "C" {
 #endif
 
+struct lua_State *
+luaT_temp_luastate(int *coro_ref, int *top);
+
+void
+luaT_release_temp_luastate(struct lua_State *L, int coro_ref, int top);
+
+
 /* {{{ Helper functions to interact with a Lua iterator from C */
 
 /**
