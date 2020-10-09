@@ -52,7 +52,7 @@ struct lua_State *
 luaT_temp_luastate(int *coro_ref, int *top)
 {
 	/* Popped by luaL_ref(). */
-	struct lua_State *L = luaT_newthread(tarantool_L);
+	struct lua_State *L = lua_newthread(tarantool_L);
 	if (L == NULL)
 		return NULL;
 	/*
