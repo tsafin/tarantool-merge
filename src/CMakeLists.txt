@@ -10,6 +10,9 @@ add_library(${PROJECT_NAME} SHARED
 # target_link_libraries(merger ${LUAJIT_LIBRARIES} ${MSGPUCK_LIBRARIES})
 set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "" OUTPUT_NAME ${PROJECT_NAME})
 
+add_subdirectory(msgpuck)
+target_link_libraries(${PROJECT_NAME} msgpuck)
+
 # The dynamic library will be loaded from tarantool executable
 # and will use symbols from it. So it is completely okay to have
 # unresolved symbols at build time.
