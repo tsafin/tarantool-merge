@@ -326,7 +326,7 @@ merger_next(struct merge_source *base, box_tuple_format_t *format,
 	assert(tuple != NULL);
 
 	/* Validate the tuple. */
-	if (format != NULL && box_tuple_validate(format, tuple) != 0)
+	if (format != NULL && box_tuple_validate(tuple, format) != 0)
 		return -1;
 
 	/*

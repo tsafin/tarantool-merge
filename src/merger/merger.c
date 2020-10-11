@@ -155,7 +155,7 @@ luaT_gettuple(struct lua_State *L, int idx, box_tuple_format_t *format)
 			return NULL;
 	} else {
 		/* Validate a tuple. */
-		if (format != NULL && box_tuple_validate(format, tuple) != 0)
+		if (format != NULL && box_tuple_validate(tuple, format) != 0)
 			return NULL;
 	}
 	return tuple;
