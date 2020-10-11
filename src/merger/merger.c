@@ -42,7 +42,7 @@
 #include <lauxlib.h>         /* luaL_*() */
 
 #include <module.h>
-#include <msgpuck.h>         /* mp_*() */
+#include <msgpuck/msgpuck.h> /* mp_*() */
 #include <small/ibuf.h>      /* struct ibuf */
 
 #include "compat/diag.h"
