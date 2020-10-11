@@ -176,22 +176,3 @@ luaL_iterator_delete(struct luaL_iterator *it)
 }
 
 /* }}} */
-
-int
-luaL_iscallable(lua_State * L, int idx)
-{
-	/* Whether it is function. */
-	int res = lua_isfunction(L, idx);
-	if (res == 1)
-		return 1;
-
-	/* Whether it is cdata with metatype with __call field. */
-	if (luaL_iscdata(L, idx))
-		return luaL_cdata_iscallable(L, idx);
-
-	/* Whether it has metatable with __call field. */
-	res = luaL_getmetafield(L, idx, "__call");
-	if (res == 1)
-		lua_pop(L, 1);	/* Pop __call value. */
-	return res;
-}

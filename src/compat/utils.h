@@ -87,16 +87,6 @@ luaL_iterator_delete(struct luaL_iterator *it);
 
 /* }}} */
 
-/**
- * Check whether a Lua object is a function or has
- * metatable/metatype with a __call field.
- *
- * Note: It does not check type of __call metatable/metatype
- * field.
- */
-LUA_API int
-luaL_iscallable(lua_State * L, int idx);
-
 #if defined(__cplusplus)
 }
 #endif
