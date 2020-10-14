@@ -13,7 +13,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-latest]
-        branch: [tsafin/gh-5273-expand-module-api-v3, tsafin/gh-5273-expand-module-api-1.10-v3]
+        branch: [tsafin/gh-5273-expand-module-api-v4, tsafin/gh-5273-expand-module-api-1.10-v4]
 
     steps:
       - name: checkout merger
