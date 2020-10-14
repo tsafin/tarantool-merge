@@ -37,7 +37,6 @@
 
 #include <lauxlib.h>
 #include <module.h>
-#include <small/ibuf.h>       /* struct ibuf */
 
 #include "compat/diag.h"
 #define HEAP_FORWARD_DECLARATION
