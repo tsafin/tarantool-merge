@@ -43,7 +43,6 @@
 
 #include <module.h>
 #include <msgpuck/msgpuck.h> /* mp_*() */
-#include <small/ibuf.h>      /* struct ibuf */
 
 #include "compat/diag.h"
 #include "compat/utils.h"
@@ -100,24 +99,29 @@ luaT_check_merge_source(struct lua_State *L, int idx)
  * Skip an array around tuples and save its length.
  */
 static int
-decode_header(struct ibuf *buf, size_t *len_p)
+decode_header(box_ibuf_t *buf, size_t *len_p)
 {
+	char **rpos;
+	char **wpos;
+	box_ibuf_read_range(buf, &rpos, &wpos);
+
 	/* Check the buffer is correct. */
-	if (buf->rpos > buf->wpos)
+	if (*rpos > *wpos)
 		return -1;
 
 	/* Skip decoding if the buffer is empty. */
-	if (ibuf_used(buf) == 0) {
+	if (*rpos == *wpos) {
 		*len_p = 0;
 		return 0;
 	}
 
 	/* Check and skip the array around tuples. */
-	int ok = mp_typeof(*buf->rpos) == MP_ARRAY;
+	int ok = mp_typeof(**rpos) == MP_ARRAY;
 	if (ok)
-		ok = mp_check_array(buf->rpos, buf->wpos) <= 0;
+		ok = mp_check_array(*rpos, *wpos) <= 0;
 	if (ok)
-		*len_p = mp_decode_array((const char **) &buf->rpos);
+		*len_p = mp_decode_array((const char **)rpos);
+
 	return ok ? 0 : -1;
 }
 
@@ -125,10 +129,12 @@ decode_header(struct ibuf *buf, size_t *len_p)
  * Encode an array around tuples.
  */
 static void
-encode_header(struct ibuf *output_buffer, uint32_t result_len)
+encode_header(box_ibuf_t *output_buffer, uint32_t result_len)
 {
-	ibuf_reserve(output_buffer, mp_sizeof_array(result_len));
-	output_buffer->wpos = mp_encode_array(output_buffer->wpos, result_len);
+	char **wpos;
+	box_ibuf_write_range(output_buffer, &wpos, NULL);
+	box_ibuf_reserve(output_buffer, mp_sizeof_array(result_len));
+	*wpos = mp_encode_array(*wpos, result_len);
 }
 
 /**
@@ -354,7 +360,7 @@ struct merge_source_buffer {
 	/*
 	 * A buffer with a current chunk of tuples.
 	 */
-	struct ibuf *buf;
+	box_ibuf_t *buf;
 	/*
 	 * A merger stops before end of a buffer when it is not
 	 * the last merger in the chain.
@@ -436,7 +442,7 @@ luaL_merge_source_buffer_fetch_impl(struct merge_source_buffer *source,
 		source->ref = 0;
 	}
 	lua_pushvalue(L, -nresult + 1); /* Popped by luaL_ref(). */
-	source->buf = luaL_checkibuf(L, -1);
+	source->buf = luaT_toibuf(L, -1);
 	if (source->buf == NULL) {
 		diag_set_illegal("Expected <state>, <buffer>");
 		return -1;
@@ -494,6 +500,15 @@ luaL_merge_source_buffer_destroy(struct merge_source *base)
 	free(source);
 }
 
+static inline size_t
+ibuf_used(char *rpos, char *wpos)
+{
+	if (!rpos && !wpos)
+		return 0;
+	assert(wpos > rpos);
+	return wpos - rpos;
+}
+
 /**
  * next() virtual method implementation for a buffer source.
  *
@@ -521,18 +536,21 @@ luaL_merge_source_buffer_next(struct merge_source *base,
 			return 0;
 		}
 	}
-	if (ibuf_used(source->buf) == 0) {
+	char **rpos;
+	char **wpos;
+	box_ibuf_read_range(source->buf, &rpos, &wpos);
+	if (ibuf_used(*rpos, *wpos) == 0) {
 		diag_set_illegal("Unexpected msgpack buffer end");
 		return -1;
 	}
-	const char *tuple_beg = source->buf->rpos;
+	const char *tuple_beg = *rpos;
 	const char *tuple_end = tuple_beg;
-	if (mp_check(&tuple_end, source->buf->wpos) != 0) {
+	if (mp_check(&tuple_end, *wpos) != 0) {
 		diag_set_illegal("Unexpected msgpack buffer end");
 		return -1;
 	}
 	--source->remaining_tuple_count;
-	source->buf->rpos = (char *) tuple_end;
+	*rpos = (char *)tuple_end;
 	if (format == NULL)
 		format = box_tuple_format_default();
 	box_tuple_t *tuple = box_tuple_new(format, tuple_beg, tuple_end);
@@ -1035,10 +1053,12 @@ lbox_merge_source_ipairs(struct lua_State *L)
  */
 static int
 encode_result_buffer(struct lua_State *L, struct merge_source *source,
-		     struct ibuf *output_buffer, uint32_t limit)
+		     box_ibuf_t *output_buffer, uint32_t limit)
 {
 	uint32_t result_len = 0;
 	uint32_t result_len_offset = 4;
+	char **wpos;
+	box_ibuf_write_range(output_buffer, &wpos, NULL);
 
 	/*
 	 * Reserve maximum size for the array around resulting
@@ -1053,9 +1073,9 @@ encode_result_buffer(struct lua_State *L, struct merge_source *source,
 	       merge_source_next(source, NULL, &tuple)) == 0 &&
 	       tuple != NULL) {
 		uint32_t bsize = box_tuple_bsize(tuple);
-		ibuf_reserve(output_buffer, bsize);
-		box_tuple_to_buf(tuple, output_buffer->wpos, bsize);
-		output_buffer->wpos += bsize;
+		box_ibuf_reserve(output_buffer, bsize);
+		box_tuple_to_buf(tuple, *wpos, bsize);
+		*wpos += bsize;
 		result_len_offset += bsize;
 		++result_len;
 
@@ -1067,7 +1087,7 @@ encode_result_buffer(struct lua_State *L, struct merge_source *source,
 		return luaT_error(L);
 
 	/* Write the real array size. */
-	mp_store_u32(output_buffer->wpos - result_len_offset, result_len);
+	mp_store_u32(*wpos - result_len_offset, result_len);
 
 	return 0;
 }
@@ -1150,7 +1170,7 @@ lbox_merge_source_select(struct lua_State *L)
 		return lbox_merge_source_select_usage(L, NULL);
 
 	uint32_t limit = UINT32_MAX;
-	struct ibuf *output_buffer = NULL;
+	box_ibuf_t *output_buffer = NULL;
 
 	/* Parse options. */
 	if (!lua_isnoneornil(L, 2)) {
@@ -1158,7 +1178,7 @@ lbox_merge_source_select(struct lua_State *L)
 		lua_pushstring(L, "buffer");
 		lua_gettable(L, 2);
 		if (!lua_isnil(L, -1)) {
-			if ((output_buffer = luaL_checkibuf(L, -1)) == NULL)
+			if ((output_buffer = luaT_toibuf(L, -1)) == NULL)
 				return lbox_merge_source_select_usage(L,
 					"buffer");
 		}
