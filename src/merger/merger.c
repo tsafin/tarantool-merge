@@ -95,6 +95,22 @@ luaT_check_merge_source(struct lua_State *L, int idx)
 	return *source_ptr;
 }
 
+/* 
+ * Check validity for given pointers
+ * and calculated the buffer used if those pointers
+ * look sane
+ */
+static inline ptrdiff_t
+ibuf_used(char *rpos, char *wpos)
+{
+	assert(rpos != NULL);
+	assert(wpos != NULL);
+	if (rpos == NULL || wpos == NULL)
+		return 0;
+
+	return wpos - rpos;
+}
+
 /**
  * Skip an array around tuples and save its length.
  */
@@ -105,12 +121,13 @@ decode_header(box_ibuf_t *buf, size_t *len_p)
 	char **wpos;
 	box_ibuf_read_range(buf, &rpos, &wpos);
 
+	ptrdiff_t used = ibuf_used(*rpos, *wpos);
 	/* Check the buffer is correct. */
-	if (*rpos > *wpos)
+	if (used < 0)
 		return -1;
 
 	/* Skip decoding if the buffer is empty. */
-	if (*rpos == *wpos) {
+	if (used == 0) {
 		*len_p = 0;
 		return 0;
 	}
@@ -498,15 +515,6 @@ luaL_merge_source_buffer_destroy(struct merge_source *base)
 		luaL_unref(luaT_state(), LUA_REGISTRYINDEX, source->ref);
 
 	free(source);
-}
-
-static inline size_t
-ibuf_used(char *rpos, char *wpos)
-{
-	if (!rpos && !wpos)
-		return 0;
-	assert(wpos > rpos);
-	return wpos - rpos;
 }
 
 /**
