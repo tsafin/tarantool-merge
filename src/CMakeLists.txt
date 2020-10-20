@@ -5,15 +5,15 @@ set(lua_sources)
 lua_source(lua_sources postload.lua)
 set_property(DIRECTORY PROPERTY ADDITIONAL_MAKE_CLEAN_FILES ${lua_sources})
 
-
-# Add C library
 add_library(${LIBNAME} SHARED
             compat/utils.c
-            ${lua_sources}
             merger/merger.c merger/merger-source.c
+            ${lua_sources}
 )
-# target_link_libraries(merger ${LUAJIT_LIBRARIES} ${MSGPUCK_LIBRARIES})
-set_target_properties(${LIBNAME} PROPERTIES PREFIX "" OUTPUT_NAME ${LIBNAME})
+set_target_properties(${LIBNAME}
+                      PROPERTIES PREFIX ""
+                      OUTPUT_NAME ${LIBNAME}
+)
 
 add_subdirectory(msgpuck)
 target_link_libraries(${LIBNAME} msgpuck)
@@ -26,5 +26,4 @@ if (APPLE)
 endif()
 
 # Install module
-# install(FILES postload.lua DESTINATION ${TARANTOOL_INSTALL_LUADIR}/${LIBSUBDIR}/)
 install(TARGETS ${LIBNAME} LIBRARY DESTINATION ${TARANTOOL_INSTALL_LIBDIR}/${LIBSUBDIR})
