@@ -1,9 +1,8 @@
 set(PROJECT_NAME merger)
-set(PROJECT_PREFIX mergerx)
+set(PROJECT_PREFIX tuple)
 
 # Add C library
 add_library(${PROJECT_NAME} SHARED
-            init.c
             compat/utils.c
             merger/merger.c merger/merger-source.c
 )

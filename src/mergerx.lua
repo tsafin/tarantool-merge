@@ -1,9 +1,9 @@
 local ffi = require('ffi')
 local fun = require('fun')
-local merger = require('mergerx.merger')
+local merger = require('tuple.merger')
 
 local ibuf_t = ffi.typeof('struct ibuf')
-local merge_source_t = ffi.typeof('struct mergerx_merge_source')
+local merge_source_t = ffi.typeof('struct tuple_merge_source')
 
 -- Create a source from one buffer.
 merger.new_source_frombuffer = function(buf)
