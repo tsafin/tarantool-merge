@@ -47,8 +47,7 @@
 #include "compat/diag.h"
 #include "compat/utils.h"
 
-#include "merger-source.h"   /* merge_source_*, merger_*() */
-#include "merger.h"
+#include "merger-source.h" /* merge_source_*, merger_*() */
 
 static uint32_t CTID_STRUCT_KEY_DEF_REF = 0;
 static uint32_t CTID_STRUCT_KEY_DEF_KEY_DEF_PTR = 0;
@@ -1217,7 +1216,7 @@ lbox_merge_source_select(struct lua_State *L)
  * Register the module.
  */
 LUA_API int
-lua_init_mergerx_merger(struct lua_State *L)
+luaopen_tuple_merger(struct lua_State *L)
 {
 	/* Built-in key_def module. */
 	luaL_cdef(L, "struct key_def;");
@@ -1227,8 +1226,9 @@ lua_init_mergerx_merger(struct lua_State *L)
 	luaL_cdef(L, "struct key_def_key_def;");
 	CTID_STRUCT_KEY_DEF_KEY_DEF_PTR = luaL_ctypeid(L, "struct key_def_key_def*");
 
-	luaL_cdef(L, "struct mergerx_merge_source;");
-	CTID_STRUCT_MERGE_SOURCE_REF = luaL_ctypeid(L, "struct mergerx_merge_source&");
+	luaL_cdef(L, "struct tuple_merge_source;");
+	CTID_STRUCT_MERGE_SOURCE_REF =
+		luaL_ctypeid(L, "struct tuple_merge_source&");
 
 	/* Export C functions to Lua. */
 	static const struct luaL_Reg meta[] = {
@@ -1238,7 +1238,7 @@ lua_init_mergerx_merger(struct lua_State *L)
 		{"new", lbox_merger_new},
 		{NULL, NULL}
 	};
-	luaL_register(L, "mergerx.merger", meta);
+	luaL_register(L, "tuple.merger", meta);
 
 	/* Add internal.{select,ipairs}(). */
 	lua_newtable(L); /* merger.internal */

@@ -1,8 +1,8 @@
 #!/usr/bin/env tarantool
 
 local net_box = require('net.box')
-local merger = require('mergerx.mergerx')
-local key_def = require('key_def')
+local merger = require('tuple.merger')
+local key_def = require('tuple.keydef')
 local yaml = require('yaml')
 
 local BLOCK_SIZE = 2

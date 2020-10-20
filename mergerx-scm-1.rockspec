@@ -20,7 +20,7 @@ description = {
 
 dependencies = {
     'lua >= 5.1',
-    'key_def'
+    'tuple-keydef'
 }
 
 external_dependencies = {
