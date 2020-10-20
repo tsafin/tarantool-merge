@@ -1,20 +1,20 @@
-package = 'mergerx'
+package = 'tuple-merger'
 version = 'scm-1'
 
 -- url and branch of the package's repository at GitHub
 source  = {
-    url    = 'git://github.com/tsafin/tarantool-merge.git';
+    url    = 'git://github.com/tarantool/tuple-merger.git';
     branch = 'tarantool-merge';
 }
 
 description = {
-    summary  = "Cross-version sharding support module for Tarantool";
+    summary  = "Cross-version merger support module for Tarantool";
     detailed = [[
-    External Luarock module for sharding support. 
+    External Luarock module for efficient merger. 
     Supposed to be used for any LTS and fresh version available
-    be it 1.x or 2.x. Created upon Tarantool 2.x box version
+    be it 1.x or 2.x. Created upon Tarantool 2.x box version.
     ]];
-    homepage = 'https://github.com/tsafin/tarantool-merge.git';
+    homepage = 'https://github.com/tarantool/tuple-merger.git';
     license  = 'BSD2';
 }
 

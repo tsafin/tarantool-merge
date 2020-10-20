@@ -50,9 +50,8 @@
 #include "merger-source.h" /* merge_source_*, merger_*() */
 
 static uint32_t CTID_STRUCT_KEY_DEF_REF = 0;
-static uint32_t CTID_STRUCT_KEY_DEF_KEY_DEF_PTR = 0;
-static uint32_t CTID_STRUCT_MERGE_SOURCE_REF = 0;
-
+static uint32_t CTID_STRUCT_TUPLE_KEYDEF_PTR = 0;
+static uint32_t CTID_STRUCT_TUPLE_MERGE_SOURCE_REF = 0;
 
 /**
  * A type of a function to create a source from a Lua iterator on
@@ -76,7 +75,7 @@ luaT_check_key_def(struct lua_State *L, int idx)
 	if (key_def_ptr == NULL)
 		return NULL;
 	if (cdata_type != CTID_STRUCT_KEY_DEF_REF &&
-	    cdata_type != CTID_STRUCT_KEY_DEF_KEY_DEF_PTR)
+	    cdata_type != CTID_STRUCT_TUPLE_KEYDEF_PTR)
 		return NULL;
 	return *key_def_ptr;
 }
@@ -89,7 +88,8 @@ luaT_check_merge_source(struct lua_State *L, int idx)
 {
 	uint32_t cdata_type;
 	struct merge_source **source_ptr = luaL_checkcdata(L, idx, &cdata_type);
-	if (source_ptr == NULL || cdata_type != CTID_STRUCT_MERGE_SOURCE_REF)
+	if (source_ptr == NULL ||
+	    cdata_type != CTID_STRUCT_TUPLE_MERGE_SOURCE_REF)
 		return NULL;
 	return *source_ptr;
 }
@@ -183,6 +183,34 @@ luaT_gettuple(struct lua_State *L, int idx, box_tuple_format_t *format)
 	return tuple;
 }
 
+/*
+ * Buffer for the part of the module written in Lua.
+ *
+ * Note: It is prefixed with the project name to don't clash with
+ * tarantool symbol.
+ */
+extern const char tuple_merger_postload_lua[];
+
+/* {{{ Helpers */
+
+void
+execute_postload_lua(struct lua_State *L)
+{
+	int top = lua_gettop(L);
+
+	const char *modname = "postload";
+	const char *modsrc = tuple_merger_postload_lua;
+	const char *modfile = "@tuple.merger/postload.lua";
+
+	if (luaL_loadbuffer(L, modsrc, strlen(modsrc), modfile) != 0)
+		luaL_error(L, "Unable to load %s", modfile);
+	lua_pushstring(L, modname);
+	lua_call(L, 1, 1);
+
+	/* Ignore Lua return value. */
+	lua_settop(L, top);
+}
+
 /* }}} */
 
 /* {{{ Create, destroy structures from Lua */
@@ -227,7 +255,7 @@ lbox_merge_source_new(struct lua_State *L, const char *func_name,
 		return luaT_error(L);
 	}
 	*(struct merge_source **)
-		luaL_pushcdata(L, CTID_STRUCT_MERGE_SOURCE_REF) = source;
+		luaL_pushcdata(L, CTID_STRUCT_TUPLE_MERGE_SOURCE_REF) = source;
 	lua_pushcfunction(L, lbox_merge_source_gc);
 	luaL_setcdatagc(L, -2);
 
@@ -348,7 +376,7 @@ lbox_merger_new(struct lua_State *L)
 	}
 
 	*(struct merge_source **)
-		luaL_pushcdata(L, CTID_STRUCT_MERGE_SOURCE_REF) = merger;
+		luaL_pushcdata(L, CTID_STRUCT_TUPLE_MERGE_SOURCE_REF) = merger;
 	lua_pushcfunction(L, lbox_merge_source_gc);
 	luaL_setcdatagc(L, -2);
 
@@ -998,7 +1026,7 @@ lbox_merge_source_gen(struct lua_State *L)
 
 	/* Push merge_source, tuple. */
 	*(struct merge_source **)
-		luaL_pushcdata(L, CTID_STRUCT_MERGE_SOURCE_REF) = source;
+		luaL_pushcdata(L, CTID_STRUCT_TUPLE_MERGE_SOURCE_REF) = source;
 	luaT_pushtuple(L, tuple);
 
 	/*
@@ -1223,11 +1251,11 @@ luaopen_tuple_merger(struct lua_State *L)
 	CTID_STRUCT_KEY_DEF_REF = luaL_ctypeid(L, "struct key_def &");
 
 	/* External key_def module. */
-	luaL_cdef(L, "struct key_def_key_def;");
-	CTID_STRUCT_KEY_DEF_KEY_DEF_PTR = luaL_ctypeid(L, "struct key_def_key_def*");
+	luaL_cdef(L, "struct tuple_keydef;");
+	CTID_STRUCT_TUPLE_KEYDEF_PTR = luaL_ctypeid(L, "struct tuple_keydef*");
 
 	luaL_cdef(L, "struct tuple_merge_source;");
-	CTID_STRUCT_MERGE_SOURCE_REF =
+	CTID_STRUCT_TUPLE_MERGE_SOURCE_REF =
 		luaL_ctypeid(L, "struct tuple_merge_source&");
 
 	/* Export C functions to Lua. */
@@ -1247,6 +1275,9 @@ luaopen_tuple_merger(struct lua_State *L)
 	lua_pushcfunction(L, lbox_merge_source_ipairs);
 	lua_setfield(L, -2, "ipairs");
 	lua_setfield(L, -2, "internal");
+
+	/* Execute Lua part of the module. */
+	execute_postload_lua(L);
 
 	return 1;
 }
