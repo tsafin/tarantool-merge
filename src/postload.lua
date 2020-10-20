@@ -39,5 +39,3 @@ ffi.metatype(merge_source_t, {
     __pairs = merger.internal.ipairs,
     __ipairs = merger.internal.ipairs,
 })
-
-return merger
