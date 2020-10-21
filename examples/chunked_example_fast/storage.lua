@@ -1,7 +1,7 @@
 #!/usr/bin/env tarantool
 
 local fio = require('fio')
-local key_def = require('key_def')
+local key_def = require('tuple.keydef')
 local vshard = require('vshard')
 local vshard_cfg = require('vshard_cfg')
 
