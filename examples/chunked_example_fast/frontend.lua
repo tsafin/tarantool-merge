@@ -1,7 +1,7 @@
 #!/usr/bin/env tarantool
 
 local buffer = require('buffer')
-local msgpack = require('msgpack')
+local msgpack = require('tuple.msgpack')
 local vshard = require('vshard')
 local merger = require('tuple.merger')
 local key_def_lib = require('tuple.keydef')
