@@ -118,10 +118,8 @@ else
 end
 
 local function decode_array_header_slowly(c, data)
-    local hex_range = bit.band(c, 0xf0)
-
     -- fixarray: 0x90 .. 0x9f
-    if hex_range ==0x90 then
+    if bit.band(c, 0xf0) == 0x90 then
         return bit.band(c, 0xf)
     end
 
@@ -146,7 +144,8 @@ local function decode_array_header_compat(buf, size)
     local c = bufp[0][0]
     bufp[0] = bufp[0] + 1
     if (mp_typeof(c) ~= native.MP_ARRAY) then
-        error(string.format("%s: unexpected msgpack type '0x%x'", 'decode_array_header_compat', c))
+        error(string.format("%s: unexpected msgpack type '0x%x'",
+                            'decode_array_header_compat', c))
     end
 
     local len = decode_array_header_slowly(c, bufp)
@@ -155,10 +154,8 @@ local function decode_array_header_compat(buf, size)
 end
 
 local function decode_map_header_slowly(c, data)
-    local hex_range = bit.band(c, 0xf0)
-
     -- fixmap: 0x80 .. 0x8f
-    if hex_range ==0x80 then
+    if bit.band(c, 0xf0) == 0x80 then
         return bit.band(c, 0xf)
     end
 
@@ -169,7 +166,7 @@ local function decode_map_header_slowly(c, data)
     elseif c == 0xdf then
         return decode_u32(data)
     else
-        error('Unsupported MP_ARRAY')
+        error('Unsupported MP_MAP')
     end
 end
 
@@ -179,7 +176,8 @@ local function decode_map_header_compat(buf, size)
     local c = bufp[0][0]
     bufp[0] = bufp[0] + 1
     if (mp_typeof(c) ~= native.MP_MAP) then
-        error(string.format("%s: unexpected msgpack type '0x%x'", 'decode_map_header_compat', c))
+        error(string.format("%s: unexpected msgpack type '0x%x'",
+                            'decode_map_header_compat', c))
     end
 
     local len = decode_map_header_slowly(c, bufp)
