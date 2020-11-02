@@ -10,6 +10,7 @@ local yaml = require('yaml')
 local vshard_cfg = require('vshard_cfg')
 
 local key_def_cache = {}
+local fix_compat = msgpack.fix_compat
 
 -- XXX: Implement some cache clean up strategy and a way to manual
 -- cache purge.
@@ -45,8 +46,10 @@ local function get_key_def(space_name, index_name)
 end
 
 local function decode_metainfo(buf)
+    local len, key
+    -- Skip map header
+    msgpack:skip_request_header(buf)
     -- Skip an array around a call return values.
-    local len
     len, buf.rpos = msgpack.decode_array_header(buf.rpos, buf:size())
     assert(len == 2)
 

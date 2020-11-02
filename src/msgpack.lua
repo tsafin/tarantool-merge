@@ -185,6 +185,21 @@ local function decode_map_header_compat(buf, size)
     return len, ffi.cast(ffi.typeof(buf), bufp[0])
 end
 
+local IPROTO_DATA_KEY = 0x30
+
+local function skip_request_header(self, buf)
+    print(self, buf)
+    -- nothing to do for not 1.10
+    if not self.fix_compat then
+        return
+    end
+    local len, key
+    len, buf.rpos = self.decode_map_header(buf.rpos, buf:size())
+    assert(len == 1)
+    key, buf.rpos = self.decode_unchecked(buf.rpos)
+    assert(key == IPROTO_DATA_KEY)
+end
+
 return {
     NULL = msgpack.NULL,
     new = msgpack.new,
@@ -200,4 +215,6 @@ return {
     decode_unchecked = msgpack.decode_unchecked,
     decode_array_header = msgpack.decode_array_header or decode_array_header_compat,
     decode_map_header = msgpack.decode_map_header or decode_map_header_compat,
+    fix_compat = msgpack.decode_map_header == nil,
+    skip_request_header = skip_request_header,
 }
