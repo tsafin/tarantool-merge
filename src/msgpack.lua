@@ -1,7 +1,7 @@
-local bit = require 'bit'
-local ffi = require 'ffi'
-local native = ffi.C
-local msgpack = require 'msgpack'
+local bit = require('bit')
+local ffi = require('ffi')
+local builtin = ffi.C
+local msgpack = require('msgpack')
 
 local uint16_ptr_t = ffi.typeof('uint16_t *')
 local uint32_ptr_t = ffi.typeof('uint32_t *')
@@ -45,28 +45,14 @@ local function init_type_hints_array(format)
 end
 
 local mp_type_hints = init_type_hints_array({
-    {0x00, 0x7f, native.MP_UINT}, -- MP_UINT (fixed)
-    {0x80, 0x8f, native.MP_MAP}, -- MP_MAP (fixed)
-    {0x90, 0x9f, native.MP_ARRAY}, -- MP_ARRAY (fixed)
-    {0xa0, 0xbf, native.MP_STR}, -- MP_STR (fixed)
-    {0xc0, 0xc0, native.MP_NIL}, -- MP_NIL
-    {0xc1, 0xc1, native.MP_EXT}, -- MP_EXT -- never used
-    {0xc2, 0xc3, native.MP_BOOL}, -- MP_BOOL
-    {0xc4, 0xc6, native.MP_BIN}, -- MP_BIN(8|16|32)
-    {0xc7, 0xc9, native.MP_EXT}, -- MP_EXT
-    {0xca, 0xca, native.MP_FLOAT}, -- MP_FLOAT
-    {0xcb, 0xcb, native.MP_DOUBLE}, -- MP_DOUBLE
-    {0xcc, 0xcf, native.MP_UINT}, -- MP_UINT
-    {0xd0, 0xd3, native.MP_INT}, -- MP_INT (8,16,32,64)
-    {0xd4, 0xd8, native.MP_EXT}, -- MP_INT? (8,16,32,64,127)
-    {0xd9, 0xdb, native.MP_STR}, -- MP_STR (8,16,32)
-    {0xdc, 0xdd, native.MP_ARRAY}, -- MP_ARRAY (16,32)
-    {0xde, 0xdf, native.MP_MAP}, -- MP_MAP (16,32)
-    {0xe0, 0xff, native.MP_INT}, -- MP_INT
+    {0x80, 0x8f, builtin.MP_MAP}, -- MP_MAP (fixed)
+    {0x90, 0x9f, builtin.MP_ARRAY}, -- MP_ARRAY (fixed)
+    {0xdc, 0xdd, builtin.MP_ARRAY}, -- MP_ARRAY (16,32)
+    {0xde, 0xdf, builtin.MP_MAP}, -- MP_MAP (16,32)
 })
 
 local function mp_typeof(c)
-    return mp_type_hints[c] or native.MP_NIL
+    return mp_type_hints[c] or builtin.MP_NIL
 end
 
 local intbuff
@@ -143,7 +129,7 @@ local function decode_array_header_compat(buf, size)
 
     local c = bufp[0][0]
     bufp[0] = bufp[0] + 1
-    if (mp_typeof(c) ~= native.MP_ARRAY) then
+    if (mp_typeof(c) ~= builtin.MP_ARRAY) then
         error(string.format("%s: unexpected msgpack type '0x%x'",
                             'decode_array_header_compat', c))
     end
@@ -175,7 +161,7 @@ local function decode_map_header_compat(buf, size)
 
     local c = bufp[0][0]
     bufp[0] = bufp[0] + 1
-    if (mp_typeof(c) ~= native.MP_MAP) then
+    if (mp_typeof(c) ~= builtin.MP_MAP) then
         error(string.format("%s: unexpected msgpack type '0x%x'",
                             'decode_map_header_compat', c))
     end
@@ -188,8 +174,7 @@ end
 local IPROTO_DATA_KEY = 0x30
 
 local function skip_request_header(self, buf)
-    print(self, buf)
-    -- nothing to do for not 1.10
+    -- nothing to do here for 2.x
     if not self.fix_compat then
         return
     end
@@ -200,21 +185,10 @@ local function skip_request_header(self, buf)
     assert(key == IPROTO_DATA_KEY)
 end
 
-return {
-    NULL = msgpack.NULL,
-    new = msgpack.new,
-    array_mt = msgpack.array_mt,
-    cfg = msgpack.cfg,
-    map_mt = msgpack.map_mt,
+local module = table.deepcopy(msgpack)
+module.decode_array_header = msgpack.decode_array_header or decode_array_header_compat
+module.decode_map_header = msgpack.decode_map_header or decode_map_header_compat
+module.fix_compat = msgpack.decode_map_header == nil
+module.skip_request_header = skip_request_header
 
-    ibuf_decode = msgpack.ibuf_decode,
-
-    encode = msgpack.encode,
-    decode = msgpack.decode,
-
-    decode_unchecked = msgpack.decode_unchecked,
-    decode_array_header = msgpack.decode_array_header or decode_array_header_compat,
-    decode_map_header = msgpack.decode_map_header or decode_map_header_compat,
-    fix_compat = msgpack.decode_map_header == nil,
-    skip_request_header = skip_request_header,
-}
+return module
