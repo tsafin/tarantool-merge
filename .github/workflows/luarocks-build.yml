@@ -65,7 +65,7 @@ jobs:
         run: |
           cd $GITHUB_WORKSPACE/tarantool/build
           cmake --build . --config $BUILD_TYPE --target install -- -j
-          echo "::set-env name=PATH::$GITHUB_WORKSPACE/share/bin:$PATH"
+          echo "PATH=$GITHUB_WORKSPACE/share/bin:$PATH" >> $GITHUB_ENV
 
 
       - name: luarocks make and pack
@@ -92,7 +92,7 @@ jobs:
         shell: bash
         run: |
           brew install make
-          echo "::set-env name=PATH::$(brew --prefix)/opt/make/libexec/gnubin:$PATH"
+          echo "PATH=$(brew --prefix)/opt/make/libexec/gnubin:$PATH" >> $GITHUB_ENV
 
       - name: check examples
         run: |
