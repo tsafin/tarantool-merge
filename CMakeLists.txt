@@ -11,6 +11,9 @@ set(CMAKE_MODULE_PATH
 
 include(cmake/utils.cmake)
 
+# Set CFLAGS/CXXFLAGS
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -Werror -std=gnu99")
+
 # Find Tarantool dependecies
 set(TARANTOOL_FIND_REQUIRED ON)
 find_package(Tarantool)
