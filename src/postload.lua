@@ -1,15 +1,20 @@
+-- This script is NOT a regular module file.
+--
+-- It is bundled into the .so / .dylib file.
+--
 -- This script is executed for each module load because
 -- we should enrich C part with some functions.
 --
--- However, we should distinguish the first module load from the subsequent
--- ones because `ffi.metatype` could be called only once.
+-- It is executed at each module reload with two arguments:
+-- a module itself and first_load flag that should prevent
+-- `ffi.metatype` call for `struct tuple_merge_source`
+-- more than one time.
 --
 
-local first_load = ...
+local merger, first_load = ...
 
 local ffi = require('ffi')
 local fun = require('fun')
-local merger = require('tuple.merger')
 
 local ibuf_t = ffi.typeof('struct ibuf')
 local merge_source_t = ffi.typeof('struct tuple_merge_source')
