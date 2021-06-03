@@ -194,17 +194,16 @@ extern const char tuple_merger_postload_lua[];
 /* {{{ Helpers */
 
 void
-execute_postload_lua(struct lua_State *L)
+execute_postload_lua(struct lua_State *L, bool first_load)
 {
 	int top = lua_gettop(L);
 
-	const char *modname = "postload";
 	const char *modsrc = tuple_merger_postload_lua;
 	const char *modfile = "@tuple.merger/postload.lua";
 
 	if (luaL_loadbuffer(L, modsrc, strlen(modsrc), modfile) != 0)
 		luaL_error(L, "Unable to load %s", modfile);
-	lua_pushstring(L, modname);
+	lua_pushboolean(L, first_load);
 	lua_call(L, 1, 1);
 
 	/* Ignore Lua return value. */
@@ -1244,6 +1243,8 @@ lbox_merge_source_select(struct lua_State *L)
 LUA_API int
 luaopen_tuple_merger(struct lua_State *L)
 {
+	static bool first_load = true;
+
 	/* Built-in key_def module. */
 	luaL_cdef(L, "struct key_def;");
 	CTID_STRUCT_KEY_DEF_REF = luaL_ctypeid(L, "struct key_def &");
@@ -1275,7 +1276,8 @@ luaopen_tuple_merger(struct lua_State *L)
 	lua_setfield(L, -2, "internal");
 
 	/* Execute Lua part of the module. */
-	execute_postload_lua(L);
+	execute_postload_lua(L, first_load);
+	first_load = false;
 
 	return 1;
 }

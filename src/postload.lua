@@ -1,3 +1,12 @@
+-- This script is executed for each module load because
+-- we should enrich C part with some functions.
+--
+-- However, we should distinguish the first module load from the subsequent
+-- ones because `ffi.metatype` could be called only once.
+--
+
+local first_load = ...
+
 local ffi = require('ffi')
 local fun = require('fun')
 local merger = require('tuple.merger')
@@ -23,6 +32,10 @@ merger.new_source_fromtable = function(tbl)
     end
 
     return merger.new_table_source(fun.iter({tbl}))
+end
+
+if not first_load then
+    return
 end
 
 local methods = {
