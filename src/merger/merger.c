@@ -193,6 +193,11 @@ extern const char tuple_merger_postload_lua[];
 
 /* {{{ Helpers */
 
+/**
+ * Execute the postload code written on Lua.
+ *
+ * Expects the module table on top of the Lua stack.
+ */
 void
 execute_postload_lua(struct lua_State *L, bool first_load)
 {
@@ -203,8 +208,15 @@ execute_postload_lua(struct lua_State *L, bool first_load)
 
 	if (luaL_loadbuffer(L, modsrc, strlen(modsrc), modfile) != 0)
 		luaL_error(L, "Unable to load %s", modfile);
+	/*
+	 * Copy the module table to top of the Lua stack: it will
+	 * be passed to the script and will be accessible as
+	 * `...`.
+	 */
+	lua_pushvalue(L, -2);
 	lua_pushboolean(L, first_load);
-	lua_call(L, 1, 1);
+
+	lua_call(L, 2, 1);
 
 	/* Ignore Lua return value. */
 	lua_settop(L, top);
@@ -1257,7 +1269,7 @@ luaopen_tuple_merger(struct lua_State *L)
 	CTID_STRUCT_TUPLE_MERGE_SOURCE_REF =
 		luaL_ctypeid(L, "struct tuple_merge_source&");
 
-	/* Export C functions to Lua. */
+	/* Create the module table. */
 	static const struct luaL_Reg meta[] = {
 		{"new_buffer_source", lbox_merger_new_buffer_source},
 		{"new_table_source", lbox_merger_new_table_source},
@@ -1265,7 +1277,9 @@ luaopen_tuple_merger(struct lua_State *L)
 		{"new", lbox_merger_new},
 		{NULL, NULL}
 	};
-	luaL_register(L, "tuple.merger", meta);
+	size_t len = sizeof(meta) / sizeof(meta[0]);
+	lua_createtable(L, 0, len - 1);
+	luaL_register(L, NULL, meta);
 
 	/* Add internal.{select,ipairs}(). */
 	lua_newtable(L); /* merger.internal */

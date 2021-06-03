@@ -550,7 +550,7 @@ end
 
 local test = tap.test('merger')
 test:plan(#bad_source_new_calls + #bad_chunks + #bad_merger_new_calls +
-    #bad_merger_select_calls + 6 + #schemas * 48)
+    #bad_merger_select_calls + 7 + #schemas * 48)
 
 -- For collations.
 box.cfg{}
@@ -764,5 +764,17 @@ for _, input_type in ipairs({'buffer', 'table', 'tuple'}) do
         end
     end
 end
+
+-- The module must not assign the 'tuple' global.
+--
+-- IOW, luaL_register() must have NULL as the second parameter.
+test:test('no _G.tuple', function(test)
+    test:plan(1)
+
+    -- rawget() is to don't be hit by the 'strict mode'. When
+    -- tarantool is built as Debug, it behaves like after
+    -- `require('strict').on()` by default.
+    test:ok(rawget(_G, 'tuple') == nil, '_G.tuple is nil')
+end)
 
 os.exit(test:check() and 0 or 1)
