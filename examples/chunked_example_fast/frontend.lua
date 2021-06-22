@@ -1,7 +1,7 @@
 #!/usr/bin/env tarantool
 
 local buffer = require('buffer')
-local msgpack = require('msgpack')
+local msgpack = require('tuple.msgpack')
 local vshard = require('vshard')
 local merger = require('tuple.merger')
 local key_def_lib = require('tuple.keydef')
@@ -45,8 +45,10 @@ local function get_key_def(space_name, index_name)
 end
 
 local function decode_metainfo(buf)
-    -- Skip an array around a call return values.
     local len
+    -- Skip map header
+    msgpack:skip_request_header(buf)
+    -- Skip an array around a call return values.
     len, buf.rpos = msgpack.decode_array_header(buf.rpos, buf:size())
     assert(len == 2)
 

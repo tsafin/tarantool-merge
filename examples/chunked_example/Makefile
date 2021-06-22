@@ -28,7 +28,7 @@ stop:
 
 test:
 	$(MAKE) start
-	$(TARANTOOL) ./frontend.lua && err = $$?
+	$(TARANTOOL) ./frontend.lua; err=$$?
 	$(MAKE) stop
 	exit $$err
 
